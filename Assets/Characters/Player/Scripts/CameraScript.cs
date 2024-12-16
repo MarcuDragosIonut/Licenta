@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField]
+    private Transform followTarget;
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        transform.position = new Vector3(followTarget.position.x, followTarget.position.y, transform.position.z);
     }
 }
