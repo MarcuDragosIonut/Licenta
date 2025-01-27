@@ -285,11 +285,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77cecafe40a0d30408558db19e348086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grassGroundPrefab: {fileID: 696285719563873748, guid: 2ed42fdc45f80bb41bc8ceb0951d4a12, type: 3}
-  grassBorderPrefab: {fileID: 2232073137501033335, guid: e81109748c4089a4abf8aca7ecb112bb, type: 3}
-  grassCornerPrefab: {fileID: 6884484596671928899, guid: 089c846760295f540912c2dfa0b50025, type: 3}
-  mapWidth: 4
-  mapHeight: 4
+  player: {fileID: 873998439}
+  groundPrefabs:
+  - {fileID: 8578789758758333971, guid: 8edcec1779445c04d8ca42353bede341, type: 3}
+  obstaclePrefabs:
+  - {fileID: 60410672362307564, guid: 1e0aa2e24c3037f4c9693c4876dec1c6, type: 3}
+  borderPrefabs:
+  - {fileID: 6279632653489423293, guid: 64c2185e9bec5a54e87e26036f5dda55, type: 3}
+  - {fileID: 1688086016238397011, guid: 8f69e97e673b8704983a369854b92921, type: 3}
+  - {fileID: 402811023106381334, guid: 457e7312cc809aa458b6017e1a2ae703, type: 3}
+  mapMinWidth: 4
+  mapMaxWidth: 8
+  mapLength: 10
+  numberOfObstacles: 3
+  borderLength: 6
+--- !u!1 &873998439 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6522661486357846038, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+  m_PrefabInstance: {fileID: 8350375145211608026}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &962377359 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6095330242663337900, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
@@ -300,7 +314,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9204381633020831794, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
   m_PrefabInstance: {fileID: 8350375145211608026}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 873998439}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce977d6367e5c8340a97a5ab1c6c5b31, type: 3}
@@ -340,15 +354,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6095330242663337900, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.7301613
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6095330242663337900, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.03190712
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6095330242663337900, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.008891512
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6095330242663337900, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_LocalRotation.w
@@ -389,6 +403,10 @@ PrefabInstance:
     - target: {fileID: 6765191479845835212, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_GravityScale
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9204381633020831794, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: speed
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

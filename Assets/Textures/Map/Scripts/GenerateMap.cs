@@ -1,72 +1,130 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Textures.Map.Scripts
 {
     public class GenerateMap : MonoBehaviour
     {
-        public GameObject grassGroundPrefab;
-        public GameObject grassBorderPrefab;
-        public GameObject grassCornerPrefab;
-
-        public int mapWidth = 10;
-        public int mapHeight = 10;
+        public GameObject player;
+        public GameObject[] groundPrefabs;
+        public GameObject[] obstaclePrefabs;
+        public GameObject[] borderPrefabs;
+        public int mapMinWidth;
+        public int mapMaxWidth;
+        public int mapLength;
+        public int numberOfObstacles;
+        public int borderLength;
 
         private const float NumberOfTilesInPrefab = 6f;
 
-        void Start()
+        private void Start()
         {
             Generate();
         }
 
-        void Generate()
+        private void Generate()
         {
-            for (int x = 0; x < mapWidth; x++)
+            var currentWidth = Random.Range(mapMinWidth, mapMaxWidth);
+            var currentLeftLimit = mapMaxWidth / 2 - currentWidth / 2;
+            var currentRightLimit = currentLeftLimit + currentWidth;
+            var currentObstacles = 0;
+            var obstacleChance = 0.02f;
+            var obstacleChanceIncrease = (1.0f - obstacleChance) / (mapLength * mapMinWidth) * (numberOfObstacles - 1);
+
+            player.transform.position = new Vector2(currentLeftLimit * 2 + 1, 1);
+            for (var y = 0; y < mapLength; y++)
             {
-                for (int y = 0; y < mapHeight; y++)
+                for (var x = currentLeftLimit; x < currentRightLimit; x++)
                 {
-                    Vector3 position = new Vector3(x * NumberOfTilesInPrefab, y * NumberOfTilesInPrefab, 0);
-                    Instantiate(grassGroundPrefab, position, Quaternion.identity, transform);
+                    Vector2 currentPosition = new Vector2(x * 2, y * 2);
+                    GameObject tile = Instantiate(groundPrefabs[0], currentPosition, Quaternion.identity);
+                    tile.transform.parent = transform;
+                    if (y > 0 && currentObstacles < numberOfObstacles)
+                    {
+                        if (Random.Range(0.0f, 1.0f) < obstacleChance)
+                        {
+                            obstacleChance = 0.02f - Math.Max(0.5f - obstacleChance, 0.0f);
+                            GameObject obstacle = Instantiate(obstaclePrefabs[0], currentPosition, Quaternion.identity);
+                            obstacle.transform.parent = transform;
+                            currentObstacles++;
+                        }
+                        else
+                        {
+                            obstacleChance += obstacleChanceIncrease;
+                        }
+                    }
+
+                    if (y == 0 || y == mapLength - 1 || x == currentLeftLimit || x == currentRightLimit - 1)
+                    {
+                        Vector2 borderDir = new Vector2(
+                            x == currentLeftLimit || x == currentRightLimit - 1
+                                ? Math.Sign(x - currentLeftLimit - 1)
+                                : 0,
+                            y == 0 || y == mapLength - 1 ? 1 * Math.Sign(y - 1) : 0);
+                        CreateBorder(x, y, borderDir);
+                    }
+                }
+
+                currentLeftLimit = NewMapLimit(currentLeftLimit, currentRightLimit);
+                currentRightLimit = NewMapLimit(currentRightLimit, currentLeftLimit);
+            }
+        }
+
+        private int NewMapLimit(int currentLimit, int otherLimit)
+        {
+            var extendChancePull = Random.Range(0.0f, 1.0f);
+            if (currentLimit == 0)
+            {
+                if (extendChancePull < 0.2f && otherLimit + 2 < mapMaxWidth)
+                    currentLimit++;
+            }
+            else
+            {
+                if (extendChancePull < 0.2f)
+                {
+                    if (extendChancePull < 0.1f && otherLimit - currentLimit + 2 < mapMaxWidth)
+                        currentLimit++;
+                    else if (otherLimit - currentLimit > mapMinWidth) currentLimit--;
                 }
             }
 
-            AddBorders(mapWidth, mapHeight, NumberOfTilesInPrefab);
-            AddCorners(mapWidth, mapHeight, NumberOfTilesInPrefab);
+            return currentLimit;
         }
 
-        void AddBorders(int width, int height, float NumberOfTilesInPrefab)
+        private void CreateBorder(int x, int y, Vector2 dir)
         {
-            for (int x = 0; x < width; x++)
+            if (dir.y != 0)
             {
-                Vector3 topPosition = new Vector3(x * NumberOfTilesInPrefab, height * NumberOfTilesInPrefab, 0);
-                Instantiate(grassBorderPrefab, topPosition, Quaternion.Euler(0, 0, 180), transform);
-
-                Vector3 bottomPosition = new Vector3(x * NumberOfTilesInPrefab, -NumberOfTilesInPrefab, 0);
-                Instantiate(grassBorderPrefab, bottomPosition, Quaternion.identity, transform);
+                for (var borderObjectIndex = 1; borderObjectIndex <= borderLength; borderObjectIndex++)
+                {
+                    InstantiateBorder(x * 2, 2 * (y + borderObjectIndex * dir.y), borderObjectIndex);
+                    if (dir.x != 0)
+                    {
+                        for (var cornerObjectIndex = 1; cornerObjectIndex <= borderLength; cornerObjectIndex++)
+                        {
+                            InstantiateBorder(2 * (x + cornerObjectIndex * dir.x), 2 * (y + borderObjectIndex * dir.y),
+                                cornerObjectIndex);
+                        }
+                    }
+                }
             }
 
-            for (int y = 0; y < height; y++)
+            if (dir.x != 0)
             {
-                Vector3 rightPosition = new Vector3(width * NumberOfTilesInPrefab, y * NumberOfTilesInPrefab, 0);
-                Instantiate(grassBorderPrefab, rightPosition, Quaternion.Euler(0, 0, 90), transform);
-
-                Vector3 leftPosition = new Vector3(-NumberOfTilesInPrefab, y * NumberOfTilesInPrefab, 0);
-                Instantiate(grassBorderPrefab, leftPosition, Quaternion.Euler(0, 0, -90), transform);
+                for (var borderObjectIndex = 1; borderObjectIndex <= borderLength; borderObjectIndex++)
+                {
+                    InstantiateBorder(2 * (x + borderObjectIndex * dir.x), y * 2, borderObjectIndex);
+                }
             }
         }
 
-        void AddCorners(int width, int height, float NumberOfTilesInPrefab)
+        private void InstantiateBorder(float x, float y, int objectIndex)
         {
-            Vector3 topLeft = new Vector3(-NumberOfTilesInPrefab, height * NumberOfTilesInPrefab, 0);
-            Instantiate(grassCornerPrefab, topLeft, Quaternion.Euler(0, 0, 0), transform);
-
-            Vector3 topRight = new Vector3(width * NumberOfTilesInPrefab, height * NumberOfTilesInPrefab, 0);
-            Instantiate(grassCornerPrefab, topRight, Quaternion.Euler(0, 0, 0), transform);
-
-            Vector3 bottomLeft = new Vector3(-NumberOfTilesInPrefab, -NumberOfTilesInPrefab, 0);
-            Instantiate(grassCornerPrefab, bottomLeft, Quaternion.Euler(0, 0, 0), transform);
-
-            Vector3 bottomRight = new Vector3(width * NumberOfTilesInPrefab, -NumberOfTilesInPrefab, 0);
-            Instantiate(grassCornerPrefab, bottomRight, Quaternion.Euler(0, 0, 0), transform);
+            var borderPrefabIndex = objectIndex == 1 ? 0 : Random.Range(0, borderPrefabs.Length);
+            GameObject borderObject = Instantiate(borderPrefabs[borderPrefabIndex],
+                new Vector2(x, y), Quaternion.identity);
+            borderObject.transform.parent = transform;
         }
     }
 }
