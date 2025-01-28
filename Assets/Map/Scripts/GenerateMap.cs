@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Textures.Map.Scripts
@@ -10,6 +13,7 @@ namespace Textures.Map.Scripts
         public GameObject[] groundPrefabs;
         public GameObject[] obstaclePrefabs;
         public GameObject[] borderPrefabs;
+        public GameObject[] portalPrefabs;
         public int mapMinWidth;
         public int mapMaxWidth;
         public int mapLength;
@@ -17,12 +21,40 @@ namespace Textures.Map.Scripts
         public int borderLength;
 
         private const float NumberOfTilesInPrefab = 6f;
+        private GameObject _portal;
 
+        public IEnumerator changeMap(int mapSize)
+        {
+            if (mapSize is < 1 or > 3)
+            {
+                throw new Exception("Bad map size");
+            }
+
+            Vector2 portalPosition = _portal.transform.position;
+            Destroy(_portal);
+            _portal = Instantiate(portalPrefabs[1], portalPosition, Quaternion.identity);
+            _portal.transform.parent = transform;
+
+            yield return new WaitForSeconds(0.5f);
+            
+            for (var i = transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(transform.GetChild(i).gameObject);
+            }
+
+            mapMinWidth = mapSize * 4;
+            mapMaxWidth = mapSize * 6 + 2;
+            mapLength = mapSize * 6 + 4;
+            numberOfObstacles = Random.Range(mapSize * 2, mapSize * 4);
+
+            Generate();
+        }
+        
         private void Start()
         {
             Generate();
         }
-
+        
         private void Generate()
         {
             var currentWidth = Random.Range(mapMinWidth, mapMaxWidth);
@@ -30,21 +62,34 @@ namespace Textures.Map.Scripts
             var currentRightLimit = currentLeftLimit + currentWidth;
             var currentObstacles = 0;
             var obstacleChance = 0.02f;
-            var obstacleChanceIncrease = (1.0f - obstacleChance) / (mapLength * mapMinWidth) * (numberOfObstacles - 1);
-
+            var obstacleChanceIncrease = (1.0f - obstacleChance) / ((mapLength-1) * mapMinWidth) * (numberOfObstacles - 1);
+            var portalPosition = -100;
+            
+            Debug.Log(obstacleChanceIncrease);
+            
             player.transform.position = new Vector2(currentLeftLimit * 2 + 1, 1);
             for (var y = 0; y < mapLength; y++)
             {
+                if (y == mapLength - 1)
+                {
+                    portalPosition = Random.Range(currentLeftLimit, currentRightLimit);
+                }
                 for (var x = currentLeftLimit; x < currentRightLimit; x++)
                 {
                     Vector2 currentPosition = new Vector2(x * 2, y * 2);
                     GameObject tile = Instantiate(groundPrefabs[0], currentPosition, Quaternion.identity);
                     tile.transform.parent = transform;
-                    if (y > 0 && currentObstacles < numberOfObstacles)
+                    if (x == portalPosition)
+                    {
+                        _portal = Instantiate(portalPrefabs[0], currentPosition, Quaternion.identity);
+                        _portal.transform.parent = transform;
+                    }
+                    if (y > 0 && currentObstacles < numberOfObstacles && x != portalPosition)
                     {
                         if (Random.Range(0.0f, 1.0f) < obstacleChance)
                         {
                             obstacleChance = 0.02f - Math.Max(0.5f - obstacleChance, 0.0f);
+                            Debug.Log(obstacleChance);
                             GameObject obstacle = Instantiate(obstaclePrefabs[0], currentPosition, Quaternion.identity);
                             obstacle.transform.parent = transform;
                             currentObstacles++;

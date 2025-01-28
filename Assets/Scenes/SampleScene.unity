@@ -294,6 +294,9 @@ MonoBehaviour:
   - {fileID: 6279632653489423293, guid: 64c2185e9bec5a54e87e26036f5dda55, type: 3}
   - {fileID: 1688086016238397011, guid: 8f69e97e673b8704983a369854b92921, type: 3}
   - {fileID: 402811023106381334, guid: 457e7312cc809aa458b6017e1a2ae703, type: 3}
+  portalPrefabs:
+  - {fileID: 991935050376799283, guid: f907fc4610af6174ca8201ec31b2c257, type: 3}
+  - {fileID: 5990299558789751896, guid: 8d04787a6fa573649aee75e3fde368cd, type: 3}
   mapMinWidth: 4
   mapMaxWidth: 8
   mapLength: 10
@@ -329,7 +332,27 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_ActionId
+      value: df500a7c-0867-4a71-a0e0-8f89e9ec8dcb
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_ActionName
+      value: Player/Interact[/Keyboard/e]
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
@@ -337,15 +360,35 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 962377362}
     - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 962377362}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnMove
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnInteract
       objectReference: {fileID: 0}
     - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: Characters.Player.Scripts.PlayerController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Characters.Player.Scripts.PlayerController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243584506370626000, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5867513078592578699, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
@@ -404,6 +447,10 @@ PrefabInstance:
       propertyPath: m_GravityScale
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9204381633020831794, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
+      propertyPath: map
+      value: 
+      objectReference: {fileID: 678755182}
     - target: {fileID: 9204381633020831794, guid: 95fcbf7d628524046a91fa94dc8b1074, type: 3}
       propertyPath: speed
       value: 7
