@@ -36,7 +36,7 @@ namespace Textures.Map.Scripts
             _portal.transform.parent = transform;
 
             yield return new WaitForSeconds(0.5f);
-            
+
             for (var i = transform.childCount - 1; i >= 0; i--)
             {
                 Destroy(transform.GetChild(i).gameObject);
@@ -49,12 +49,12 @@ namespace Textures.Map.Scripts
 
             Generate();
         }
-        
+
         private void Start()
         {
             Generate();
         }
-        
+
         private void Generate()
         {
             var currentWidth = Random.Range(mapMinWidth, mapMaxWidth);
@@ -62,11 +62,12 @@ namespace Textures.Map.Scripts
             var currentRightLimit = currentLeftLimit + currentWidth;
             var currentObstacles = 0;
             var obstacleChance = 0.02f;
-            var obstacleChanceIncrease = (1.0f - obstacleChance) / ((mapLength-1) * mapMinWidth) * (numberOfObstacles - 1);
+            var obstacleChanceIncrease =
+                (1.0f - obstacleChance) / ((mapLength - 1) * mapMinWidth) * (numberOfObstacles - 1);
             var portalPosition = -100;
-            
+
             Debug.Log(obstacleChanceIncrease);
-            
+
             player.transform.position = new Vector2(currentLeftLimit * 2 + 1, 1);
             for (var y = 0; y < mapLength; y++)
             {
@@ -74,6 +75,7 @@ namespace Textures.Map.Scripts
                 {
                     portalPosition = Random.Range(currentLeftLimit, currentRightLimit);
                 }
+
                 for (var x = currentLeftLimit; x < currentRightLimit; x++)
                 {
                     Vector2 currentPosition = new Vector2(x * 2, y * 2);
@@ -84,6 +86,7 @@ namespace Textures.Map.Scripts
                         _portal = Instantiate(portalPrefabs[0], currentPosition, Quaternion.identity);
                         _portal.transform.parent = transform;
                     }
+
                     if (y > 0 && currentObstacles < numberOfObstacles && x != portalPosition)
                     {
                         if (Random.Range(0.0f, 1.0f) < obstacleChance)
@@ -100,14 +103,35 @@ namespace Textures.Map.Scripts
                         }
                     }
 
-                    if (y == 0 || y == mapLength - 1 || x == currentLeftLimit || x == currentRightLimit - 1)
+                    Debug.Log(x + " " + y + " " + currentLeftLimit + " " + currentRightLimit + " " + (mapLength - 1));
+                    if (x == currentLeftLimit)
                     {
-                        Vector2 borderDir = new Vector2(
-                            x == currentLeftLimit || x == currentRightLimit - 1
-                                ? Math.Sign(x - currentLeftLimit - 1)
-                                : 0,
-                            y == 0 || y == mapLength - 1 ? 1 * Math.Sign(y - 1) : 0);
-                        CreateBorder(x, y, borderDir);
+                        if (0 < y && y < mapLength - 1) CreateBorder(x, y, new Vector2(-1, 0));
+                        else
+                        {
+                            if (y == 0)
+                                CreateBorder(x, y, new Vector2(-1, -1));
+                            if (y == mapLength - 1)
+                                CreateBorder(x, y, new Vector2(-1, 1));
+                        }
+                    }
+                    if (x == currentRightLimit - 1)
+                    {
+                        if (0 < y && y < mapLength - 1) CreateBorder(x, y, new Vector2(1, 0));
+                        else
+                        {
+                            if (y == 0)
+                                CreateBorder(x, y, new Vector2(1, -1));
+                            if (y == mapLength - 1)
+                                CreateBorder(x, y, new Vector2(1, 1));
+                        }
+                    }
+                    if ( x != currentLeftLimit && x != currentRightLimit - 1)
+                    {
+                        if (y == 0)
+                            CreateBorder(x, y, new Vector2(0, -1));
+                        if (y == mapLength - 1)
+                            CreateBorder(x, y, new Vector2(0, 1));
                     }
                 }
 
