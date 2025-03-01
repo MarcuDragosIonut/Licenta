@@ -68,7 +68,7 @@ namespace Textures.Map.Scripts
 
             Debug.Log(obstacleChanceIncrease);
 
-            player.transform.position = new Vector2(currentLeftLimit * 2 + 1, 1);
+            player.transform.position = new Vector2(currentLeftLimit * 2 + 1, 0);
             for (var y = 0; y < mapLength; y++)
             {
                 if (y == mapLength - 1)

@@ -324,6 +324,22 @@ PrefabInstance:
       propertyPath: map
       value: 
       objectReference: {fileID: 678755182}
+    - target: {fileID: 1988913403599105876, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: currentAttack
+      value: 
+      objectReference: {fileID: 3063630211845618037, guid: c23b60caa24df5e4081a0cd14113adec, type: 3}
+    - target: {fileID: 2562986546267945388, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3514664541222102300, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911594052070763927, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4748993435965488094, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -367,6 +383,26 @@ PrefabInstance:
     - target: {fileID: 6413249521229404011, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6413249521229404011, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7895727709594482028, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8282713408009219538, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a65d95438bc7b7b448b60237727acad2, type: 3}
+    - target: {fileID: 8282713408009219538, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8611195764875441635, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

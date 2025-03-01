@@ -363,6 +363,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 1d8439cb-9836-4bcf-8063-d7b7964c2ecd
     m_ActionName: Player/Look[/Mouse/position]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1988913403599105876}
+        m_TargetAssemblyTypeName: Characters.Player.Scripts.PlayerController, Assembly-CSharp
+        m_MethodName: OnAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 579a59f5-9bc8-4526-91be-3c95bdcc41da
+    m_ActionName: Player/Attack[/Mouse/leftButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -384,6 +400,7 @@ MonoBehaviour:
   map: {fileID: 0}
   playerBody: {fileID: 3514664541222102300}
   playerHand: {fileID: 8611195764875441635}
+  equippedWand: {fileID: 7895727709594482028}
 --- !u!1 &7895727709594482028
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,6 +411,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4107242075244920483}
   - component: {fileID: 8282713408009219538}
+  - component: {fileID: 5852353528738584002}
   m_Layer: 0
   m_Name: Wand
   m_TagString: Untagged
@@ -468,6 +486,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5852353528738584002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7895727709594482028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a09b0dbda640cc419821f593e6a9abf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleSprite: {fileID: 21300000, guid: a65d95438bc7b7b448b60237727acad2, type: 3}
+  activeSprite: {fileID: 21300000, guid: 73df8cd03636bcc49ba24327bd200270, type: 3}
 --- !u!1 &8611195764875441635
 GameObject:
   m_ObjectHideFlags: 0
