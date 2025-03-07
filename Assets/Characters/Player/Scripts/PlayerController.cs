@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Characters.Player.Items.Armors.Scripts;
 using Characters.Player.Weapons.Attacks.Scripts;
 using Characters.Player.Weapons.Scripts;
 using Textures.Map.Scripts;
@@ -14,14 +15,17 @@ namespace Characters.Player.Scripts
     {
         public float speed = 3.0f;
         public GameObject map;
+        public GameObject playerHead;
         public GameObject playerBody;
         public GameObject playerHand;
         public GameObject equippedWand;
         public GameObject currentAttack;
+        public GameObject inventory;
 
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private float _lastAttackTime = -Mathf.Infinity;
+        private InventoryController _inventoryController;
         private Rigidbody2D _rb;
         private Camera _mainCamera;
         private Animator _bodyAnimator;
@@ -35,13 +39,15 @@ namespace Characters.Player.Scripts
 
         private void Awake()
         {
-            _wandWeaponScript = equippedWand.GetComponent<WeaponScript>();
             _rb = GetComponent<Rigidbody2D>();
             _mainCamera = Camera.main;
             _bodyAnimator = playerBody.GetComponent<Animator>();
             _handAnimator = playerHand.GetComponent<Animator>();
-            _wandSpriteRenderer = equippedWand.GetComponent<SpriteRenderer>();
             _attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
+            _inventoryController = inventory.GetComponent<InventoryController>();
+            EquipWeapon(_inventoryController.equippedWand);
+            EquipHeadArmor(_inventoryController.headEquipment);
+            EquipBodyArmor(_inventoryController.bodyEquipment);
         }
 
         public void OnMove(InputAction.CallbackContext context)
@@ -81,6 +87,30 @@ namespace Characters.Player.Scripts
             }
         }
 
+        public void EquipBodyArmor(GameObject bodyArmor)
+        {
+            if (bodyArmor == null) return;
+            
+            playerBody.GetComponent<SpriteRenderer>().sprite = bodyArmor.GetComponent<ArmorScript>().equippedArmorSprite;
+        }
+
+        public void EquipHeadArmor(GameObject headArmor)
+        {
+            if (headArmor == null) return;
+            
+            playerHead.GetComponent<SpriteRenderer>().sprite = headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
+        }
+
+        public void EquipWeapon(GameObject weapon)
+        {
+            if (weapon == null) return;
+            
+            equippedWand = Instantiate(weapon, playerHand.transform);
+            equippedWand.GetComponent<SpriteRenderer>().sprite = weapon.GetComponent<SpriteRenderer>().sprite;
+            _wandWeaponScript = equippedWand.GetComponent<WeaponScript>();
+            _wandSpriteRenderer = equippedWand.GetComponent<SpriteRenderer>();
+        }
+        
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
@@ -107,7 +137,7 @@ namespace Characters.Player.Scripts
             Vector2 direction = (worldMousePos - transform.position).normalized;
             return direction;
         }
-
+        
         private void OnTriggerEnter2D(Collider2D collision)
         {
             Debug.Log("Enter " + collision.transform.tag);
