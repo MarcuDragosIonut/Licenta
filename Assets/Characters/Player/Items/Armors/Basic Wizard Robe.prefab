@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   armorSprite: {fileID: 21300000, guid: 606b4a70ceccfab49a40f69a0395458b, type: 3}
   equippedArmorSprite: {fileID: 21300000, guid: 00ce3bee18c62f24c8df7dedb9bad578, type: 3}
-  armorType: 0
+  armorType: 1
 --- !u!212 &4279093366424388643
 SpriteRenderer:
   m_ObjectHideFlags: 0

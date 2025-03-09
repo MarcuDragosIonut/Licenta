@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Characters.Player.Items.Armors.Scripts;
+using Characters.Player.Items.Weapons.Scripts;
 using Characters.Player.Weapons.Attacks.Scripts;
-using Characters.Player.Weapons.Scripts;
 using Textures.Map.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -22,6 +22,7 @@ namespace Characters.Player.Scripts
         public GameObject currentAttack;
         public GameObject inventory;
 
+        private bool _inventoryOpened = false;
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private float _lastAttackTime = -Mathf.Infinity;
@@ -30,6 +31,8 @@ namespace Characters.Player.Scripts
         private Camera _mainCamera;
         private Animator _bodyAnimator;
         private Animator _handAnimator;
+        private Sprite _baseHeadSprite;
+        private Sprite _baseBodySprite;
         private SpriteRenderer _wandSpriteRenderer;
         private WeaponScript _wandWeaponScript;
         private AttackBehaviour _attackBehaviour;
@@ -39,6 +42,8 @@ namespace Characters.Player.Scripts
 
         private void Awake()
         {
+            _baseBodySprite = playerBody.GetComponent<SpriteRenderer>().sprite;
+            _baseHeadSprite = playerHead.GetComponent<SpriteRenderer>().sprite;
             _rb = GetComponent<Rigidbody2D>();
             _mainCamera = Camera.main;
             _bodyAnimator = playerBody.GetComponent<Animator>();
@@ -50,6 +55,12 @@ namespace Characters.Player.Scripts
             EquipBodyArmor(_inventoryController.bodyEquipment);
         }
 
+        public void ChangeInventoryVisibility()
+        {
+            inventory.SetActive(!_inventoryOpened);
+            _inventoryOpened = !_inventoryOpened;
+        }
+        
         public void OnMove(InputAction.CallbackContext context)
         {
             Vector2 moveInput = context.ReadValue<Vector2>();
@@ -94,11 +105,21 @@ namespace Characters.Player.Scripts
             playerBody.GetComponent<SpriteRenderer>().sprite = bodyArmor.GetComponent<ArmorScript>().equippedArmorSprite;
         }
 
+        public void UnequipBodyArmor()
+        {
+            playerBody.GetComponent<SpriteRenderer>().sprite = _baseBodySprite;
+        }
+        
         public void EquipHeadArmor(GameObject headArmor)
         {
             if (headArmor == null) return;
             
             playerHead.GetComponent<SpriteRenderer>().sprite = headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
+        }
+
+        public void UnequipHeadArmor()
+        {
+            playerHead.GetComponent<SpriteRenderer>().sprite = _baseHeadSprite;
         }
 
         public void EquipWeapon(GameObject weapon)

@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Characters.Player.Weapons.Scripts
+namespace Characters.Player.Items.Weapons.Scripts
 {
     public class WeaponScript : MonoBehaviour
     {
