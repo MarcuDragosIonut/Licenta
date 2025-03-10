@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Characters.Player.Inventory.Scripts;
 using Characters.Player.Items.Armors.Scripts;
 using Characters.Player.Items.Weapons.Scripts;
 using Characters.Player.Weapons.Attacks.Scripts;
@@ -21,8 +22,9 @@ namespace Characters.Player.Scripts
         public GameObject equippedWand;
         public GameObject currentAttack;
         public GameObject inventory;
+        public GameObject[] equippedSpells = new GameObject[3];
 
-        private bool _inventoryOpened = false;
+        private bool _inventoryOpened = true;
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private float _lastAttackTime = -Mathf.Infinity;
@@ -98,6 +100,19 @@ namespace Characters.Player.Scripts
             }
         }
 
+        public void EquipSpell(GameObject spellItem, int spellPosition)
+        {
+            if (equippedSpells[spellPosition] != null)
+            {
+                equippedSpells[spellPosition] = null;
+            }
+            else
+            {
+                if (spellItem == null) return;
+                equippedSpells[spellPosition] = spellItem;
+            }
+        }
+        
         public void EquipBodyArmor(GameObject bodyArmor)
         {
             if (bodyArmor == null) return;

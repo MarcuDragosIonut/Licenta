@@ -7,6 +7,7 @@ TagManager:
   - Portal
   - Armor
   - Weapon
+  - Book
   layers:
   - Default
   - TransparentFX
