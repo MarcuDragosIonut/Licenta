@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3549494480636904862}
   - component: {fileID: 9188079274926186634}
   m_Layer: 0
-  m_Name: FireElementBook
+  m_Name: ArcaneElementBook
   m_TagString: Book
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a603d1d3c30d2704f928a6773ced78b6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0c65d4e00fc489b42bb4a0c3746f7093, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -97,5 +97,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f5c25622ad567540a6a154f1d632fa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  elementType: 0
-  baseAttack: {fileID: 7098282952803141574, guid: e4d4a3c4253b1b748a27e59da6199efe, type: 3}
+  elementType: 1
+  baseAttack: {fileID: 3063630211845618037, guid: c23b60caa24df5e4081a0cd14113adec, type: 3}

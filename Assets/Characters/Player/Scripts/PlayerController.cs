@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Characters.Player.Inventory.Scripts;
 using Characters.Player.Items.Armors.Scripts;
+using Characters.Player.Items.Weapons.Attacks.Scripts;
 using Characters.Player.Items.Weapons.Scripts;
-using Characters.Player.Weapons.Attacks.Scripts;
 using Textures.Map.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -24,7 +24,7 @@ namespace Characters.Player.Scripts
         public GameObject inventory;
         public GameObject[] equippedSpells = new GameObject[3];
 
-        private bool _inventoryOpened = true;
+        private bool _inventoryOpened = false;
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private float _lastAttackTime = -Mathf.Infinity;
@@ -50,7 +50,7 @@ namespace Characters.Player.Scripts
             _mainCamera = Camera.main;
             _bodyAnimator = playerBody.GetComponent<Animator>();
             _handAnimator = playerHand.GetComponent<Animator>();
-            _attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
+            //_attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
             _inventoryController = inventory.GetComponent<InventoryController>();
             EquipWeapon(_inventoryController.equippedWand);
             EquipHeadArmor(_inventoryController.headEquipment);
@@ -82,6 +82,8 @@ namespace Characters.Player.Scripts
 
         public void OnLook(InputAction.CallbackContext context)
         {
+            if (_inventoryOpened) return;
+            
             Vector2 mousePos = context.ReadValue<Vector2>();
             var direction = GetMouseDirection(mousePos);
 
@@ -91,9 +93,9 @@ namespace Characters.Player.Scripts
 
         public void OnAttack(InputAction.CallbackContext context)
         {
-            if (!context.performed) return;
+            if (!context.performed || _inventoryOpened || currentAttack == null) return;
 
-            Debug.Log("Clicked");
+            //Debug.Log("Clicked");
             if (_isAttacking == false && _lastAttackTime + _attackBehaviour.cooldown < Time.time)
             {
                 StartCoroutine(HandleAttack());
@@ -146,19 +148,32 @@ namespace Characters.Player.Scripts
             _wandWeaponScript = equippedWand.GetComponent<WeaponScript>();
             _wandSpriteRenderer = equippedWand.GetComponent<SpriteRenderer>();
         }
+
+        public void PrepareAttack(InputAction.CallbackContext context)
+        {
+            var keyPressed = context.control.name;
+            var selectedSpellSlot = int.Parse(keyPressed);
+
+            if (equippedSpells[selectedSpellSlot - 1] != null)
+            {
+                currentAttack = equippedSpells[selectedSpellSlot - 1].GetComponent<ElementBookScript>().baseAttack;
+                _attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
+            }
+        }
         
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
             _handAnimator.SetBool(IsAttacking, true);
             _wandSpriteRenderer.sprite = _wandWeaponScript.activeSprite;
-            _lastAttackTime = Time.time;
 
             yield return new WaitForSeconds(0.5f);
             
-            _attackBehaviour.Use(GetMouseDirection(Mouse.current.position.ReadValue()),
+            _lastAttackTime = Time.time;
+            _attackBehaviour.Use(transform.up,
                 transform.position + transform.up * 1f);
-
+            currentAttack = null;
+            _attackBehaviour = null;
             yield return new WaitForSeconds(1.5f);
 
             _wandSpriteRenderer.sprite = _wandWeaponScript.idleSprite;

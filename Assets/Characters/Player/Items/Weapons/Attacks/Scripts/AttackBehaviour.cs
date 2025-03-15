@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.Users;
 
-namespace Characters.Player.Weapons.Attacks.Scripts
+namespace Characters.Player.Items.Weapons.Attacks.Scripts
 {
     public class AttackBehaviour : MonoBehaviour
     {
@@ -14,7 +10,7 @@ namespace Characters.Player.Weapons.Attacks.Scripts
 
         public void Use(Vector2 direction, Vector2 spawnPosition)
         {
-            GameObject attack = Instantiate(gameObject, spawnPosition, Quaternion.identity);
+            var attack = Instantiate(gameObject, spawnPosition, Quaternion.identity);
             attack.GetComponent<Rigidbody2D>().velocity = direction * travelSpeed;
         }
 

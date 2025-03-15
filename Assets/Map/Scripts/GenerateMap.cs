@@ -103,7 +103,7 @@ namespace Textures.Map.Scripts
                         }
                     }
 
-                    Debug.Log(x + " " + y + " " + currentLeftLimit + " " + currentRightLimit + " " + (mapLength - 1));
+                    //Debug.Log(x + " " + y + " " + currentLeftLimit + " " + currentRightLimit + " " + (mapLength - 1));
                     if (x == currentLeftLimit)
                     {
                         if (0 < y && y < mapLength - 1) CreateBorder(x, y, new Vector2(-1, 0));
