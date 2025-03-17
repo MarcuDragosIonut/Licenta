@@ -104,13 +104,12 @@ namespace Characters.Player.Scripts
 
         public void EquipSpell(GameObject spellItem, int spellPosition)
         {
-            if (equippedSpells[spellPosition] != null)
+            if (spellItem == null)
             {
                 equippedSpells[spellPosition] = null;
             }
             else
             {
-                if (spellItem == null) return;
                 equippedSpells[spellPosition] = spellItem;
             }
         }
