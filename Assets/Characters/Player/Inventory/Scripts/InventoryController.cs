@@ -97,9 +97,11 @@ namespace Characters.Player.Inventory.Scripts
 
             var currentSlotIndex = selectedSlot.transform.GetSiblingIndex();
 
-            for (int i = 0; i < 3; i++)
+            if (_selectedEquipmentSlotIndex != -1)
             {
-                Debug.Log(spellSlots[i]);
+                SwapSpells(currentSlotIndex);
+                _selectedEquipmentSlotIndex = -1;
+                return;
             }
 
             if (_selectedInventorySlotIndex == -1)
@@ -124,7 +126,6 @@ namespace Characters.Player.Inventory.Scripts
                 EquipItem(currentSlotIndex, selectedSlot);
                 _selectedInventorySlotIndex = -1;
             }
-            
         }
 
         private void EquipItem(int currentSlotIndex, GameObject selectedSlot)
@@ -229,7 +230,8 @@ namespace Characters.Player.Inventory.Scripts
                 }
             }
 
-            if (_selectedEquipmentSlotIndex == 2 && inventorySlots[currentSlotIndex] != null) // wand
+            // wand
+            if (_selectedEquipmentSlotIndex == 2 && inventorySlots[currentSlotIndex] != null)
             {
                 if (inventorySlots[currentSlotIndex]?.GetComponent<WeaponScript>() == null) return;
 
@@ -243,10 +245,11 @@ namespace Characters.Player.Inventory.Scripts
             {
                 GameObject inventoryObject = null;
 
-                Debug.Log(inventorySlots[currentSlotIndex] + " " + _selectedEquipmentSlotIndex);
-                if (inventorySlots[currentSlotIndex] != null)
+
+                if (inventorySlots[currentSlotIndex] != null) // swap from inventory
                 {
-                    if (inventorySlots[currentSlotIndex].GetComponent<ElementBookScript>()?.elementType == null) return;
+                    if (inventorySlots[currentSlotIndex].GetComponent<ElementBookScript>()?.elementType ==
+                        null) return;
                     inventoryObject = inventorySlots[currentSlotIndex];
                 }
 
@@ -257,6 +260,19 @@ namespace Characters.Player.Inventory.Scripts
                 spellSlots[_selectedEquipmentSlotIndex - 3] = inventoryObject;
             }
 
+            RefreshEquipment();
+        }
+
+        private void SwapSpells(int currentSlotIndex)
+        {
+            // swap spells between themselves
+
+            if (currentSlotIndex < 3) return;
+            (spellSlots[_selectedEquipmentSlotIndex - 3], spellSlots[currentSlotIndex - 3]) =
+                (spellSlots[currentSlotIndex - 3], spellSlots[_selectedEquipmentSlotIndex - 3]);
+            _playerScript.EquipSpell(spellSlots[_selectedEquipmentSlotIndex - 3], _selectedEquipmentSlotIndex - 3);
+            _playerScript.EquipSpell(spellSlots[currentSlotIndex - 3], currentSlotIndex - 3);
+            
             RefreshEquipment();
         }
 

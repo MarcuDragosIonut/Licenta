@@ -104,14 +104,7 @@ namespace Characters.Player.Scripts
 
         public void EquipSpell(GameObject spellItem, int spellPosition)
         {
-            if (spellItem == null)
-            {
-                equippedSpells[spellPosition] = null;
-            }
-            else
-            {
                 equippedSpells[spellPosition] = spellItem;
-            }
         }
         
         public void EquipBodyArmor(GameObject bodyArmor)
