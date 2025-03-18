@@ -16,17 +16,20 @@ namespace Characters.Player.Scripts
     {
         public float speed = 3.0f;
         public GameObject map;
+        public GameObject interactionArea;
         public GameObject playerHead;
         public GameObject playerBody;
         public GameObject playerHand;
         public GameObject equippedWand;
         public GameObject currentAttack;
         public GameObject inventory;
+        public GameObject pickUpMenu;
         public GameObject[] equippedSpells = new GameObject[3];
 
         private bool _inventoryOpened = false;
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
+        private HashSet<GameObject> _collidingLoot;
         private float _lastAttackTime = -Mathf.Infinity;
         private InventoryController _inventoryController;
         private Rigidbody2D _rb;
@@ -77,7 +80,14 @@ namespace Characters.Player.Scripts
             if (_isTouchingPortal)
             {
                 StartCoroutine(map.GetComponent<GenerateMap>().changeMap(1));
+                return;
             }
+
+            if (_collidingLoot.Count > 0)
+            {
+                
+            }
+            
         }
 
         public void OnLook(InputAction.CallbackContext context)
@@ -188,6 +198,11 @@ namespace Characters.Player.Scripts
             {
                 _isTouchingPortal = true;
             }
+
+            if (collision.CompareTag("Loot"))
+            {
+                _collidingLoot.Add(collision.gameObject);
+            }
         }
 
         private void OnTriggerExit2D(Collider2D collision)
@@ -196,6 +211,11 @@ namespace Characters.Player.Scripts
             if (collision.CompareTag("Portal"))
             {
                 _isTouchingPortal = false;
+            }
+            
+            if (collision.CompareTag("Loot"))
+            {
+                _collidingLoot.Remove(collision.gameObject);
             }
         }
 
