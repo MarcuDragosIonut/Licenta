@@ -1,4 +1,4 @@
-namespace Characters.Player.Items.Weapons.Scripts
+namespace Items.Weapons.Scripts
 {
     public enum ElementType
     {

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
-using Characters.Player.Items.Armors.Scripts;
 using Characters.Player.Items.Weapons.Scripts;
 using Characters.Player.Scripts;
+using Items.Armors.Scripts;
+using Items.Weapons.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,34 +20,56 @@ namespace Characters.Player.Inventory.Scripts
         public GameObject bodyEquipment;
         public GameObject equippedWand;
 
+        private GameObject _lootObject;
         private Sprite _emptySlotSprite;
         private PlayerController _playerScript;
-        private Transform _inventoryGrid;
-        private Transform _equipmentGrid;
         private int _selectedInventorySlotIndex = -1;
         private int _selectedEquipmentSlotIndex = -1;
 
-        private void Start()
+        private Transform _inventoryGrid;
+        private Transform _equipmentGrid;
+        private GameObject _lootImage;
+        private GameObject _lootSlot;
+
+
+        private void Awake()
         {
             _inventoryGrid = transform.Find("InventoryGrid");
             _equipmentGrid = transform.Find("EquipmentGrid");
-            Debug.Log(_inventoryGrid.childCount);
+            _lootImage = transform.Find("PickUpBackground").gameObject;
+            _lootSlot = transform.Find("LootSlot").gameObject;
+            _lootImage.SetActive(false);
+            _lootSlot.SetActive(false);
+        }
+        
+        private void Start()
+        {
             _emptySlotSprite = _inventoryGrid.GetChild(0).GetComponent<Image>().sprite;
-            //load ui
-            _equipmentGrid.GetChild(0).transform.GetSiblingIndex();
-            _inventoryGrid.GetChild(0).transform.GetSiblingIndex();
-            //end load ui
             _playerScript = player.GetComponent<PlayerController>();
-
-            Debug.Log(inventorySlots.Length);
-
+            
             RefreshEntireInventory();
             RefreshEquipment();
         }
 
+        public void HandleLoot(GameObject lootObject)
+        {
+            _lootObject = lootObject;
+            _lootSlot.GetComponent<Image>().sprite = lootObject.GetComponent<SpriteRenderer>().sprite;
+            Debug.Log(_lootObject);
+            _lootImage.SetActive(true);
+            _lootSlot.SetActive(true);
+        }
+
+        public void CancelLootAction()
+        {
+            _lootObject = null;
+            _lootImage.SetActive(false);
+            _lootSlot.SetActive(false);
+        }
+        
         public void OnInventorySlotClick()
         {
-            //var selectedSlot = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+            
             var pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
             var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
@@ -53,6 +77,12 @@ namespace Characters.Player.Inventory.Scripts
 
             var currentSlotIndex = selectedSlot.transform.GetSiblingIndex();
 
+            if (_lootObject != null)
+            {
+                TakeLoot(currentSlotIndex);
+                return;
+            }
+            
             if (_selectedEquipmentSlotIndex != -1)
             {
                 SwapOutEquipment(currentSlotIndex);
@@ -128,6 +158,17 @@ namespace Characters.Player.Inventory.Scripts
             }
         }
 
+        private void TakeLoot(int currentSlotIndex)
+        {
+            inventorySlots[currentSlotIndex] = _lootObject;
+            _inventoryGrid.GetChild(currentSlotIndex).GetComponent<Image>().sprite =
+                _lootObject.GetComponent<SpriteRenderer>().sprite;
+            _lootImage.gameObject.SetActive(false);
+            _lootSlot.gameObject.SetActive(false);
+            _playerScript.CancelLootPickUp();
+            _lootObject = null;
+        }
+        
         private void EquipItem(int currentSlotIndex, GameObject selectedSlot)
         {
             var selectedItem = inventorySlots[_selectedInventorySlotIndex];

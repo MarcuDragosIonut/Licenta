@@ -1,4 +1,4 @@
-namespace Characters.Player.Items.Armors.Scripts
+namespace Items.Armors.Scripts
 {
     public enum ArmorType
     {

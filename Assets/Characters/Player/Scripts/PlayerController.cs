@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Characters.Player.Inventory.Scripts;
-using Characters.Player.Items.Armors.Scripts;
 using Characters.Player.Items.Weapons.Attacks.Scripts;
 using Characters.Player.Items.Weapons.Scripts;
+using Items.Armors.Scripts;
+using Items.Weapons.Scripts;
+using Map.Scripts;
 using Textures.Map.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -27,9 +30,10 @@ namespace Characters.Player.Scripts
         public GameObject[] equippedSpells = new GameObject[3];
 
         private bool _inventoryOpened = false;
+        private bool _isPickingUpLoot = false;
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
-        private HashSet<GameObject> _collidingLoot;
+        private GameObject _collidingLoot;
         private float _lastAttackTime = -Mathf.Infinity;
         private InventoryController _inventoryController;
         private Rigidbody2D _rb;
@@ -62,10 +66,16 @@ namespace Characters.Player.Scripts
 
         public void ChangeInventoryVisibility()
         {
+            if (_isPickingUpLoot)
+            {
+                inventory.GetComponent<InventoryController>().CancelLootAction();
+                _isPickingUpLoot = false;
+            }
+
             inventory.SetActive(!_inventoryOpened);
             _inventoryOpened = !_inventoryOpened;
         }
-        
+
         public void OnMove(InputAction.CallbackContext context)
         {
             Vector2 moveInput = context.ReadValue<Vector2>();
@@ -83,17 +93,25 @@ namespace Characters.Player.Scripts
                 return;
             }
 
-            if (_collidingLoot.Count > 0)
+            if (_collidingLoot!=null && !_isPickingUpLoot && !_collidingLoot.GetComponent<ChestScript>().isOpened)
             {
-                
+                _isPickingUpLoot = true;
+                _inventoryOpened = true;
+                inventory.SetActive(true);
+                inventory.GetComponent<InventoryController>()
+                    .HandleLoot(_collidingLoot.GetComponent<ChestScript>().GetLoot());
             }
-            
         }
 
+        public void CancelLootPickUp()
+        {
+            _isPickingUpLoot = false;
+        }
+        
         public void OnLook(InputAction.CallbackContext context)
         {
             if (_inventoryOpened) return;
-            
+
             Vector2 mousePos = context.ReadValue<Vector2>();
             var direction = GetMouseDirection(mousePos);
 
@@ -114,26 +132,28 @@ namespace Characters.Player.Scripts
 
         public void EquipSpell(GameObject spellItem, int spellPosition)
         {
-                equippedSpells[spellPosition] = spellItem;
+            equippedSpells[spellPosition] = spellItem;
         }
-        
+
         public void EquipBodyArmor(GameObject bodyArmor)
         {
             if (bodyArmor == null) return;
-            
-            playerBody.GetComponent<SpriteRenderer>().sprite = bodyArmor.GetComponent<ArmorScript>().equippedArmorSprite;
+
+            playerBody.GetComponent<SpriteRenderer>().sprite =
+                bodyArmor.GetComponent<ArmorScript>().equippedArmorSprite;
         }
 
         public void UnequipBodyArmor()
         {
             playerBody.GetComponent<SpriteRenderer>().sprite = _baseBodySprite;
         }
-        
+
         public void EquipHeadArmor(GameObject headArmor)
         {
             if (headArmor == null) return;
-            
-            playerHead.GetComponent<SpriteRenderer>().sprite = headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
+
+            playerHead.GetComponent<SpriteRenderer>().sprite =
+                headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
         }
 
         public void UnequipHeadArmor()
@@ -144,7 +164,7 @@ namespace Characters.Player.Scripts
         public void EquipWeapon(GameObject weapon)
         {
             if (weapon == null) return;
-            
+
             equippedWand = Instantiate(weapon, playerHand.transform);
             equippedWand.GetComponent<SpriteRenderer>().sprite = weapon.GetComponent<SpriteRenderer>().sprite;
             _wandWeaponScript = equippedWand.GetComponent<WeaponScript>();
@@ -153,6 +173,8 @@ namespace Characters.Player.Scripts
 
         public void PrepareAttack(InputAction.CallbackContext context)
         {
+            if (_inventoryOpened) return;
+
             var keyPressed = context.control.name;
             var selectedSpellSlot = int.Parse(keyPressed);
 
@@ -162,7 +184,7 @@ namespace Characters.Player.Scripts
                 _attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
             }
         }
-        
+
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
@@ -170,7 +192,7 @@ namespace Characters.Player.Scripts
             _wandSpriteRenderer.sprite = _wandWeaponScript.activeSprite;
 
             yield return new WaitForSeconds(0.5f);
-            
+
             _lastAttackTime = Time.time;
             _attackBehaviour.Use(transform.up,
                 transform.position + transform.up * 1f);
@@ -190,7 +212,7 @@ namespace Characters.Player.Scripts
             Vector2 direction = (worldMousePos - transform.position).normalized;
             return direction;
         }
-        
+
         private void OnTriggerEnter2D(Collider2D collision)
         {
             Debug.Log("Enter " + collision.transform.tag);
@@ -201,7 +223,8 @@ namespace Characters.Player.Scripts
 
             if (collision.CompareTag("Loot"))
             {
-                _collidingLoot.Add(collision.gameObject);
+                Debug.Log("loot");
+                if (!collision.GetComponent<ChestScript>().isOpened) _collidingLoot = collision.gameObject;
             }
         }
 
@@ -212,10 +235,10 @@ namespace Characters.Player.Scripts
             {
                 _isTouchingPortal = false;
             }
-            
+
             if (collision.CompareTag("Loot"))
             {
-                _collidingLoot.Remove(collision.gameObject);
+                _collidingLoot = null;
             }
         }
 

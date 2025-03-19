@@ -1,3 +1,4 @@
+using Items.Weapons.Scripts;
 using UnityEngine;
 
 namespace Characters.Player.Items.Weapons.Scripts
