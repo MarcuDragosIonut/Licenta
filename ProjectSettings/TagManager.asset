@@ -9,6 +9,7 @@ TagManager:
   - Weapon
   - Book
   - Loot
+  - PlayerAttack
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - UI
   - PlayerAttack
   - Player
-  - 
-  - 
+  - Obstacle
+  - Enemy
   - 
   - 
   - 

@@ -138,6 +138,8 @@ namespace Textures.Map.Scripts
                 currentLeftLimit = NewMapLimit(currentLeftLimit, currentRightLimit);
                 currentRightLimit = NewMapLimit(currentRightLimit, currentLeftLimit);
             }
+            
+            AstarPath.active.Scan();
         }
 
         private int NewMapLimit(int currentLimit, int otherLimit)
