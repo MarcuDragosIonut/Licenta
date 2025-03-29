@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Characters.Enemies.Scripts;
 using Characters.Player.Inventory.Scripts;
-using Characters.Player.Items.Weapons.Attacks.Scripts;
 using Characters.Player.Items.Weapons.Scripts;
 using Items.Armors.Scripts;
+using Items.Weapons.Attacks.Scripts;
 using Items.Weapons.Scripts;
 using Map.Scripts;
 using Textures.Map.Scripts;
@@ -18,6 +19,7 @@ namespace Characters.Player.Scripts
     public class PlayerController : MonoBehaviour
     {
         public float speed = 3.0f;
+        public float health = 100.0f;
         public GameObject map;
         public GameObject interactionArea;
         public GameObject playerHead;
@@ -26,9 +28,11 @@ namespace Characters.Player.Scripts
         public GameObject equippedWand;
         public GameObject currentAttack;
         public GameObject inventory;
-        public GameObject pickUpMenu;
         public GameObject[] equippedSpells = new GameObject[3];
 
+        private GameObject _equippedBodyArmor;
+        private GameObject _equippedHeadArmor;
+        private int _skillPoints = 0;
         private bool _inventoryOpened = false;
         private bool _isPickingUpLoot = false;
         private bool _isAttacking = false;
@@ -130,6 +134,11 @@ namespace Characters.Player.Scripts
             }
         }
 
+        public void OnEnemyKill(EnemyController enemy)
+        {
+            _skillPoints += enemy.skillPoints;
+        }
+        
         public void EquipSpell(GameObject spellItem, int spellPosition)
         {
             equippedSpells[spellPosition] = spellItem;
@@ -139,12 +148,14 @@ namespace Characters.Player.Scripts
         {
             if (bodyArmor == null) return;
 
+            _equippedBodyArmor = bodyArmor;
             playerBody.GetComponent<SpriteRenderer>().sprite =
                 bodyArmor.GetComponent<ArmorScript>().equippedArmorSprite;
         }
 
         public void UnequipBodyArmor()
         {
+            _equippedBodyArmor = null;
             playerBody.GetComponent<SpriteRenderer>().sprite = _baseBodySprite;
         }
 
@@ -152,12 +163,14 @@ namespace Characters.Player.Scripts
         {
             if (headArmor == null) return;
 
+            _equippedHeadArmor = headArmor;
             playerHead.GetComponent<SpriteRenderer>().sprite =
                 headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
         }
 
         public void UnequipHeadArmor()
         {
+            _equippedHeadArmor = null;
             playerHead.GetComponent<SpriteRenderer>().sprite = _baseHeadSprite;
         }
 
@@ -185,6 +198,16 @@ namespace Characters.Player.Scripts
             }
         }
 
+        public void TakeDamage(float damage)
+        {
+            var bodyReduction = _equippedBodyArmor != null ? _equippedBodyArmor.GetComponent<ArmorScript>().damageReductionMultiplier : 1.0f;
+            var headReduction = _equippedHeadArmor != null ?_equippedHeadArmor.GetComponent<ArmorScript>().damageReductionMultiplier : 1.0f;
+            health -= damage * (
+                bodyReduction +
+                headReduction - 1.0f
+                );
+        }
+        
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
@@ -193,9 +216,38 @@ namespace Characters.Player.Scripts
 
             yield return new WaitForSeconds(0.5f);
 
+            //Debug.Log("PlayerHead: " + _equippedHeadArmor.GetComponent<ArmorScript>().arcaneMultiplier);
             _lastAttackTime = Time.time;
+
+            var headArmor = _equippedHeadArmor != null ?_equippedHeadArmor.GetComponent<ArmorScript>() : null;
+            var bodyArmor = _equippedBodyArmor != null ?  _equippedBodyArmor.GetComponent<ArmorScript>() : null;
+            var weapon = equippedWand.GetComponent<WeaponScript>();
+
+            var arcaneMultiplier = 1.0f + (
+                (headArmor != null ? headArmor.arcaneMultiplier - 1.0f : 0) +
+                (bodyArmor != null ? bodyArmor.arcaneMultiplier - 1.0f : 0) +
+                weapon.arcaneMultiplier - 1.0f);
+            
+            var fireMultiplier = 1.0f + (
+                (headArmor != null ? headArmor.fireMultiplier - 1.0f : 0) +
+                (bodyArmor != null ? bodyArmor.fireMultiplier - 1.0f : 0) +
+                weapon.fireMultiplier - 1.0f);
+            
+            var waterMultiplier = 1.0f + (
+                (headArmor != null ? headArmor.waterMultiplier - 1.0f : 0) +
+                (bodyArmor != null ? bodyArmor.waterMultiplier - 1.0f : 0) +
+                weapon.waterMultiplier - 1.0f);
+
+            var physicalMultiplier = 1.0f + (
+                (headArmor != null ? headArmor.physicalMultiplier - 1.0f : 0) +
+                (bodyArmor != null ? bodyArmor.physicalMultiplier - 1.0f : 0) +
+                weapon.physicalMultiplier - 1.0f);
+
+            Debug.Log("arc mult: " + arcaneMultiplier);
+            
             _attackBehaviour.Use(transform.up,
-                transform.position + transform.up * 1f);
+                transform.position + transform.up * 1f,
+                arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
             currentAttack = null;
             _attackBehaviour = null;
             yield return new WaitForSeconds(1.5f);

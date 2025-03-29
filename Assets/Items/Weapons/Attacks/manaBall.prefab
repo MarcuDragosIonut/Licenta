@@ -99,7 +99,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59df65628235a16428820582a0aea2b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 5
+  arcaneDamage: 6
+  fireDamage: 0
+  waterDamage: 0
+  physicalDamage: 0
+  knockBack: 0.5
   travelSpeed: 7.5
   cooldown: 1
 --- !u!50 &7953982139432446069

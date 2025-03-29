@@ -369,11 +369,11 @@ Rigidbody2D:
   m_GameObject: {fileID: 6413249521229404011}
   m_BodyType: 0
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 2.5
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -560,6 +560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4.5
+  health: 100
   map: {fileID: 0}
   interactionArea: {fileID: 1677934074840438940}
   playerHead: {fileID: 2562986546267945388}
@@ -568,7 +569,6 @@ MonoBehaviour:
   equippedWand: {fileID: 0}
   currentAttack: {fileID: 0}
   inventory: {fileID: 0}
-  pickUpMenu: {fileID: 0}
   equippedSpells:
   - {fileID: 0}
   - {fileID: 0}
