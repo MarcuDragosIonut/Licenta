@@ -1,15 +1,13 @@
-using System;
 using System.Collections.Generic;
 using Characters.Player.Items.Weapons.Scripts;
 using Characters.Player.Scripts;
 using Items.Armors.Scripts;
 using Items.Weapons.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Characters.Player.Inventory.Scripts
+namespace UI.Scripts
 {
     public class InventoryController : MonoBehaviour
     {
@@ -19,6 +17,7 @@ namespace Characters.Player.Inventory.Scripts
         public GameObject headEquipment;
         public GameObject bodyEquipment;
         public GameObject equippedWand;
+        public GameObject equipmentSlotsElement;
 
         private GameObject _lootObject;
         private Sprite _emptySlotSprite;
@@ -26,6 +25,7 @@ namespace Characters.Player.Inventory.Scripts
         private int _selectedInventorySlotIndex = -1;
         private int _selectedEquipmentSlotIndex = -1;
 
+        private EquipmentSlotsController _slotsController;
         private Transform _inventoryGrid;
         private Transform _equipmentGrid;
         private GameObject _lootImage;
@@ -40,15 +40,21 @@ namespace Characters.Player.Inventory.Scripts
             _lootSlot = transform.Find("LootSlot").gameObject;
             _lootImage.SetActive(false);
             _lootSlot.SetActive(false);
+            _slotsController = equipmentSlotsElement.GetComponent<EquipmentSlotsController>();
         }
-        
+
         private void Start()
         {
             _emptySlotSprite = _inventoryGrid.GetChild(0).GetComponent<Image>().sprite;
             _playerScript = player.GetComponent<PlayerController>();
-            
+
             RefreshEntireInventory();
             RefreshEquipment();
+        }
+
+        public EquipmentSlotsController GetSlotsController()
+        {
+            return _slotsController;
         }
 
         public void HandleLoot(GameObject lootObject)
@@ -66,10 +72,9 @@ namespace Characters.Player.Inventory.Scripts
             _lootImage.SetActive(false);
             _lootSlot.SetActive(false);
         }
-        
+
         public void OnInventorySlotClick()
         {
-            
             var pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
             var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
@@ -82,7 +87,7 @@ namespace Characters.Player.Inventory.Scripts
                 TakeLoot(currentSlotIndex);
                 return;
             }
-            
+
             if (_selectedEquipmentSlotIndex != -1)
             {
                 SwapOutEquipment(currentSlotIndex);
@@ -98,28 +103,13 @@ namespace Characters.Player.Inventory.Scripts
             }
             else
             {
-                (inventorySlots[currentSlotIndex], inventorySlots[_selectedInventorySlotIndex]) = (
-                    inventorySlots[_selectedInventorySlotIndex], inventorySlots[currentSlotIndex]);
-                _inventoryGrid.GetChild(currentSlotIndex).GetComponent<Image>().sprite =
-                    inventorySlots[currentSlotIndex].GetComponent<SpriteRenderer>().sprite;
-                if (inventorySlots[_selectedInventorySlotIndex] != null)
-                {
-                    _inventoryGrid.GetChild(_selectedInventorySlotIndex).GetComponent<Image>().sprite =
-                        inventorySlots[_selectedInventorySlotIndex].GetComponent<SpriteRenderer>().sprite;
-                }
-                else
-                {
-                    _inventoryGrid.GetChild(_selectedInventorySlotIndex).GetComponent<Image>().sprite =
-                        _emptySlotSprite;
-                }
-
+                SwapInventoryItems(currentSlotIndex);
                 _selectedInventorySlotIndex = -1;
             }
         }
 
         public void OnEquipmentSlotClick()
         {
-            //var selectedSlot = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
             var pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
             var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
@@ -127,14 +117,14 @@ namespace Characters.Player.Inventory.Scripts
 
             var currentSlotIndex = selectedSlot.transform.GetSiblingIndex();
 
-            if (_selectedEquipmentSlotIndex != -1)
+            if (_selectedEquipmentSlotIndex != -1) // Swap equipped items
             {
                 SwapSpells(currentSlotIndex);
                 _selectedEquipmentSlotIndex = -1;
                 return;
             }
 
-            if (_selectedInventorySlotIndex == -1)
+            if (_selectedInventorySlotIndex == -1) // Select equipment to move
             {
                 switch (currentSlotIndex)
                 {
@@ -151,7 +141,7 @@ namespace Characters.Player.Inventory.Scripts
 
                 _selectedEquipmentSlotIndex = currentSlotIndex;
             }
-            else
+            else // Equip selected item
             {
                 EquipItem(currentSlotIndex, selectedSlot);
                 _selectedInventorySlotIndex = -1;
@@ -168,7 +158,25 @@ namespace Characters.Player.Inventory.Scripts
             _playerScript.CancelLootPickUp();
             _lootObject = null;
         }
-        
+
+        private void SwapInventoryItems(int currentSlotIndex)
+        {
+            (inventorySlots[currentSlotIndex], inventorySlots[_selectedInventorySlotIndex]) = (
+                inventorySlots[_selectedInventorySlotIndex], inventorySlots[currentSlotIndex]);
+            _inventoryGrid.GetChild(currentSlotIndex).GetComponent<Image>().sprite =
+                inventorySlots[currentSlotIndex].GetComponent<SpriteRenderer>().sprite;
+            if (inventorySlots[_selectedInventorySlotIndex] != null)
+            {
+                _inventoryGrid.GetChild(_selectedInventorySlotIndex).GetComponent<Image>().sprite =
+                    inventorySlots[_selectedInventorySlotIndex].GetComponent<SpriteRenderer>().sprite;
+            }
+            else
+            {
+                _inventoryGrid.GetChild(_selectedInventorySlotIndex).GetComponent<Image>().sprite =
+                    _emptySlotSprite;
+            }
+        }
+
         private void EquipItem(int currentSlotIndex, GameObject selectedSlot)
         {
             var selectedItem = inventorySlots[_selectedInventorySlotIndex];
@@ -217,7 +225,12 @@ namespace Characters.Player.Inventory.Scripts
                 {
                     _playerScript.EquipSpell(selectedItem, currentSlotIndex - 3);
                     selectedSlot.GetComponent<Image>().sprite = selectedItem.GetComponent<SpriteRenderer>().sprite;
+
+                    _slotsController.ChangeSlotIcon(currentSlotIndex - 3,
+                        selectedItem.GetComponent<SpriteRenderer>().sprite);
+
                     inventorySlots[_selectedInventorySlotIndex] = spellSlots[currentSlotIndex - 3];
+
                     spellSlots[currentSlotIndex - 3] = selectedItem;
 
                     successfulEquip = true;
@@ -286,7 +299,6 @@ namespace Characters.Player.Inventory.Scripts
             {
                 GameObject inventoryObject = null;
 
-
                 if (inventorySlots[currentSlotIndex] != null) // swap from inventory
                 {
                     if (inventorySlots[currentSlotIndex].GetComponent<ElementBookScript>()?.elementType ==
@@ -294,8 +306,12 @@ namespace Characters.Player.Inventory.Scripts
                     inventoryObject = inventorySlots[currentSlotIndex];
                 }
 
+                _slotsController.ChangeSlotIcon(_selectedEquipmentSlotIndex - 3,
+                    inventoryObject != null ? inventoryObject.GetComponent<SpriteRenderer>().sprite : null);
+
                 _playerScript.EquipSpell(inventoryObject, _selectedEquipmentSlotIndex - 3);
                 inventorySlots[currentSlotIndex] = spellSlots[_selectedEquipmentSlotIndex - 3];
+
                 _inventoryGrid.GetChild(currentSlotIndex).GetComponent<Image>().sprite =
                     spellSlots[_selectedEquipmentSlotIndex - 3].GetComponent<SpriteRenderer>().sprite;
                 spellSlots[_selectedEquipmentSlotIndex - 3] = inventoryObject;
@@ -313,7 +329,14 @@ namespace Characters.Player.Inventory.Scripts
                 (spellSlots[currentSlotIndex - 3], spellSlots[_selectedEquipmentSlotIndex - 3]);
             _playerScript.EquipSpell(spellSlots[_selectedEquipmentSlotIndex - 3], _selectedEquipmentSlotIndex - 3);
             _playerScript.EquipSpell(spellSlots[currentSlotIndex - 3], currentSlotIndex - 3);
-            
+
+            _slotsController.ChangeSlotIcon(currentSlotIndex - 3,
+                spellSlots[currentSlotIndex - 3].GetComponent<SpriteRenderer>().sprite);
+            _slotsController.ChangeSlotIcon(_selectedEquipmentSlotIndex - 3,
+                spellSlots[_selectedEquipmentSlotIndex - 3] != null
+                    ? spellSlots[_selectedEquipmentSlotIndex - 3].GetComponent<SpriteRenderer>().sprite
+                    : null);
+
             RefreshEquipment();
         }
 

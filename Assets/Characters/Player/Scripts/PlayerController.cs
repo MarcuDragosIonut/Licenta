@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters.Enemies.Scripts;
-using Characters.Player.Inventory.Scripts;
 using Characters.Player.Items.Weapons.Scripts;
 using Items.Armors.Scripts;
 using Items.Weapons.Attacks.Scripts;
 using Items.Weapons.Scripts;
 using Map.Scripts;
 using Textures.Map.Scripts;
+using UI.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +20,9 @@ namespace Characters.Player.Scripts
     {
         public float speed = 3.0f;
         public float health = 100.0f;
+        public float maxHealth = 100.0f;
+        public int mana = 20;
+        public int maxMana = 20;
         public GameObject map;
         public GameObject interactionArea;
         public GameObject playerHead;
@@ -29,6 +32,7 @@ namespace Characters.Player.Scripts
         public GameObject currentAttack;
         public GameObject inventory;
         public GameObject[] equippedSpells = new GameObject[3];
+        public GameObject playerStatsElement;
 
         private GameObject _equippedBodyArmor;
         private GameObject _equippedHeadArmor;
@@ -39,7 +43,10 @@ namespace Characters.Player.Scripts
         private bool _isTouchingPortal = false;
         private GameObject _collidingLoot;
         private float _lastAttackTime = -Mathf.Infinity;
+        
         private InventoryController _inventoryController;
+        private PlayerStatsController _statsController;
+        
         private Rigidbody2D _rb;
         private Camera _mainCamera;
         private Animator _bodyAnimator;
@@ -61,11 +68,16 @@ namespace Characters.Player.Scripts
             _mainCamera = Camera.main;
             _bodyAnimator = playerBody.GetComponent<Animator>();
             _handAnimator = playerHand.GetComponent<Animator>();
-            //_attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
+            _statsController = playerStatsElement.GetComponent<PlayerStatsController>();
             _inventoryController = inventory.GetComponent<InventoryController>();
             EquipWeapon(_inventoryController.equippedWand);
             EquipHeadArmor(_inventoryController.headEquipment);
             EquipBodyArmor(_inventoryController.bodyEquipment);
+        }
+
+        private void Start()
+        {
+            _statsController.UpdateStats(health, maxHealth, mana, maxMana);
         }
 
         public void ChangeInventoryVisibility()
@@ -130,6 +142,7 @@ namespace Characters.Player.Scripts
             //Debug.Log("Clicked");
             if (_isAttacking == false && _lastAttackTime + _attackBehaviour.cooldown < Time.time)
             {
+                _inventoryController.GetSlotsController().UnhighlightSlots();
                 StartCoroutine(HandleAttack());
             }
         }
@@ -206,6 +219,7 @@ namespace Characters.Player.Scripts
                 bodyReduction +
                 headReduction - 1.0f
                 );
+            _statsController.UpdateStats(health, maxHealth, mana, maxMana);
         }
         
         private IEnumerator HandleAttack()
