@@ -7383,70 +7383,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2541371500816719648, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: m_Constraints
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4989642712089695019, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
       propertyPath: m_Name
       value: DarkMage
-      objectReference: {fileID: 0}
-    - target: {fileID: 5762108089715133171, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: m_Radius
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352294516084198457, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: enableRotation
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352294516084198457, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: endReachedDistance
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6352294516084198457, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: slowWhenNotFacingTarget
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: speed
-      value: 0.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: health
-      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 5350304909965886846}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: arcaneRes
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: attackRange
-      value: 4.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: physicalRes
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: skillPoints
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: attackPool.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: attackPool.Array.data[0]
-      value: 
-      objectReference: {fileID: 3063630211845618037, guid: 6cf01b5dcd83ee8479ec7aba05f12809, type: 3}
-    - target: {fileID: 9050045159903254859, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
-      propertyPath: attackPool.Array.data[1]
-      value: 
-      objectReference: {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

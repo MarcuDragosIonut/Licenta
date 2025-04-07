@@ -144,7 +144,7 @@ MonoBehaviour:
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
-  enableRotation: 0
+  enableRotation: 1
   autoRepath:
     mode: 2
     interval: 0.5
@@ -156,7 +156,7 @@ MonoBehaviour:
   rotationSpeed: 360
   slowdownDistance: 0.4
   pickNextWaypointDist: 0.3
-  endReachedDistance: 0.2
+  endReachedDistance: 1
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
   whenCloseToDestination: 0
@@ -173,17 +173,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 941aa2be0a1fea34a8f311ff88433cf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 20
-  arcaneRes: 1
+  health: 15
+  arcaneRes: 0.5
   fireRes: 1
   waterRes: 1
-  physicalRes: 1
-  speed: 1.5
-  attackRange: 1
-  skillPoints: 1
+  physicalRes: 1.5
+  speed: 0.9
+  attackRange: 4.5
+  skillPoints: 3
   player: {fileID: 0}
   attackPool:
-  - {fileID: 7098282952803141574, guid: 62ce2cfb0f8dd554faf74f26f11c389d, type: 3}
+  - {fileID: 3063630211845618037, guid: 6cf01b5dcd83ee8479ec7aba05f12809, type: 3}
+  - {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}
 --- !u!114 &5338938837447186538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,7 +233,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 5
+  m_Radius: 8
 --- !u!50 &2541371500816719648
 Rigidbody2D:
   serializedVersion: 4
@@ -259,7 +260,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!60 &4255181804634264398
 PolygonCollider2D:
   m_ObjectHideFlags: 0
