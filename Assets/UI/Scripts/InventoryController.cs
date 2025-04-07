@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Characters.Player.Items.Weapons.Scripts;
 using Characters.Player.Scripts;
 using Items.Armors.Scripts;
 using Items.Weapons.Scripts;
@@ -191,14 +190,14 @@ namespace UI.Scripts
                 {
                     inventorySlots[_selectedInventorySlotIndex] = headEquipment;
                     headEquipment = selectedItem;
-                    _playerScript.EquipHeadArmor(selectedItem);
+                    _playerScript.EquipArmor(selectedItem);
                 }
                 else
                 {
                     inventorySlots[_selectedInventorySlotIndex] = bodyEquipment;
 
                     bodyEquipment = selectedItem;
-                    _playerScript.EquipBodyArmor(selectedItem);
+                    _playerScript.EquipArmor(selectedItem);
                 }
 
                 selectedSlot.GetComponent<Image>().sprite = selectedItemScript.armorSprite;
@@ -269,18 +268,18 @@ namespace UI.Scripts
                     headEquipment = inventoryObject;
                     if (headEquipment != null)
                     {
-                        _playerScript.EquipHeadArmor(headEquipment);
+                        _playerScript.EquipArmor(headEquipment);
                     }
-                    else _playerScript.UnequipHeadArmor();
+                    else _playerScript.UnequipArmor(ArmorType.HeadArmor);
                 }
                 else
                 {
                     bodyEquipment = inventoryObject;
                     if (bodyEquipment != null)
                     {
-                        _playerScript.EquipBodyArmor(bodyEquipment);
+                        _playerScript.EquipArmor(bodyEquipment);
                     }
-                    else _playerScript.UnequipBodyArmor();
+                    else _playerScript.UnequipArmor(ArmorType.BodyArmor);
                 }
             }
 

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters.Enemies.Scripts;
-using Characters.Player.Items.Weapons.Scripts;
 using Items.Armors.Scripts;
 using Items.Weapons.Attacks.Scripts;
 using Items.Weapons.Scripts;
@@ -24,7 +23,6 @@ namespace Characters.Player.Scripts
         public int mana = 20;
         public int maxMana = 20;
         public GameObject map;
-        public GameObject interactionArea;
         public GameObject playerHead;
         public GameObject playerBody;
         public GameObject playerHand;
@@ -34,8 +32,8 @@ namespace Characters.Player.Scripts
         public GameObject[] equippedSpells = new GameObject[3];
         public GameObject playerStatsElement;
 
-        private GameObject _equippedBodyArmor;
-        private GameObject _equippedHeadArmor;
+        private ArmorScript _equippedBodyArmor;
+        private ArmorScript _equippedHeadArmor;
         private int _skillPoints = 0;
         private bool _inventoryOpened = false;
         private bool _isPickingUpLoot = false;
@@ -71,8 +69,8 @@ namespace Characters.Player.Scripts
             _statsController = playerStatsElement.GetComponent<PlayerStatsController>();
             _inventoryController = inventory.GetComponent<InventoryController>();
             EquipWeapon(_inventoryController.equippedWand);
-            EquipHeadArmor(_inventoryController.headEquipment);
-            EquipBodyArmor(_inventoryController.bodyEquipment);
+            EquipArmor(_inventoryController.headEquipment);
+            EquipArmor(_inventoryController.bodyEquipment);
         }
 
         private void Start()
@@ -157,34 +155,46 @@ namespace Characters.Player.Scripts
             equippedSpells[spellPosition] = spellItem;
         }
 
-        public void EquipBodyArmor(GameObject bodyArmor)
+        public void EquipArmor(GameObject armor)
         {
-            if (bodyArmor == null) return;
+            if (armor == null) return;
+            var armorScript = armor.GetComponent<ArmorScript>();
 
-            _equippedBodyArmor = bodyArmor;
-            playerBody.GetComponent<SpriteRenderer>().sprite =
-                bodyArmor.GetComponent<ArmorScript>().equippedArmorSprite;
+            if (armorScript.armorType == ArmorType.BodyArmor)
+            {
+                _equippedBodyArmor = armorScript.GetComponent<ArmorScript>();
+                playerBody.GetComponent<SpriteRenderer>().sprite =
+                    armorScript.GetComponent<ArmorScript>().equippedArmorSprite;
+            }
+            else
+            {
+                _equippedHeadArmor = armorScript.GetComponent<ArmorScript>();
+                playerHead.GetComponent<SpriteRenderer>().sprite =
+                    armorScript.GetComponent<ArmorScript>().equippedArmorSprite;
+            }
         }
 
-        public void UnequipBodyArmor()
+        public void UnequipArmor(ArmorType armorType)
         {
-            _equippedBodyArmor = null;
-            playerBody.GetComponent<SpriteRenderer>().sprite = _baseBodySprite;
+            if (armorType == ArmorType.BodyArmor)
+            {
+                _equippedBodyArmor = null;
+                playerBody.GetComponent<SpriteRenderer>().sprite = _baseBodySprite;
+            }
+            else
+            {
+                _equippedHeadArmor = null;
+                playerHead.GetComponent<SpriteRenderer>().sprite = _baseHeadSprite;
+            }
         }
 
         public void EquipHeadArmor(GameObject headArmor)
         {
             if (headArmor == null) return;
 
-            _equippedHeadArmor = headArmor;
+            _equippedHeadArmor = headArmor.GetComponent<ArmorScript>();
             playerHead.GetComponent<SpriteRenderer>().sprite =
                 headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
-        }
-
-        public void UnequipHeadArmor()
-        {
-            _equippedHeadArmor = null;
-            playerHead.GetComponent<SpriteRenderer>().sprite = _baseHeadSprite;
         }
 
         public void EquipWeapon(GameObject weapon)
@@ -211,15 +221,34 @@ namespace Characters.Player.Scripts
             }
         }
 
-        public void TakeDamage(float damage)
+        public void TakeDamage(AttackBehaviour attack)
         {
-            var bodyReduction = _equippedBodyArmor != null ? _equippedBodyArmor.GetComponent<ArmorScript>().damageReductionMultiplier : 1.0f;
-            var headReduction = _equippedHeadArmor != null ?_equippedHeadArmor.GetComponent<ArmorScript>().damageReductionMultiplier : 1.0f;
-            health -= damage * (
-                bodyReduction +
-                headReduction - 1.0f
-                );
+            var damage = GetDamageFromAttack(attack);
+            health -= damage;
             _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+        }
+
+        private float GetDamageFromAttack(AttackBehaviour attack)
+        {
+            float arcaneRes = 1.0f, fireRes = 1.0f, waterRes = 1.0f, physRes = 1.0f;
+            
+            if (_equippedBodyArmor != null)
+            {
+                arcaneRes -= 1.0f - _equippedBodyArmor.arcaneReductionMultiplier;
+                fireRes -= 1.0f - _equippedBodyArmor.fireReductionMultiplier;
+                waterRes -= 1.0f - _equippedBodyArmor.waterReductionMultiplier;
+                physRes -= 1.0f - _equippedBodyArmor.physicalReductionMultiplier;
+            }
+
+            if (_equippedHeadArmor != null)
+            {
+                arcaneRes -= 1.0f -  _equippedHeadArmor.arcaneReductionMultiplier;
+                fireRes -= 1.0f - _equippedHeadArmor.fireReductionMultiplier;
+                waterRes -= 1.0f - _equippedHeadArmor.waterReductionMultiplier;
+                physRes -= 1.0f - _equippedHeadArmor.physicalReductionMultiplier;
+            }
+
+            return attack.arcaneDamage * arcaneRes + attack.fireDamage * fireRes + attack.waterDamage * waterRes + attack.physicalDamage * physRes;
         }
         
         private IEnumerator HandleAttack()
@@ -230,36 +259,33 @@ namespace Characters.Player.Scripts
 
             yield return new WaitForSeconds(0.5f);
 
-            //Debug.Log("PlayerHead: " + _equippedHeadArmor.GetComponent<ArmorScript>().arcaneMultiplier);
             _lastAttackTime = Time.time;
 
-            var headArmor = _equippedHeadArmor != null ?_equippedHeadArmor.GetComponent<ArmorScript>() : null;
-            var bodyArmor = _equippedBodyArmor != null ?  _equippedBodyArmor.GetComponent<ArmorScript>() : null;
             var weapon = equippedWand.GetComponent<WeaponScript>();
 
             var arcaneMultiplier = 1.0f + (
-                (headArmor != null ? headArmor.arcaneMultiplier - 1.0f : 0) +
-                (bodyArmor != null ? bodyArmor.arcaneMultiplier - 1.0f : 0) +
+                (_equippedHeadArmor != null ? _equippedHeadArmor.arcaneMultiplier - 1.0f : 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.arcaneMultiplier - 1.0f : 0) +
                 weapon.arcaneMultiplier - 1.0f);
             
             var fireMultiplier = 1.0f + (
-                (headArmor != null ? headArmor.fireMultiplier - 1.0f : 0) +
-                (bodyArmor != null ? bodyArmor.fireMultiplier - 1.0f : 0) +
+                (_equippedHeadArmor != null ? _equippedHeadArmor.fireMultiplier - 1.0f : 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.fireMultiplier - 1.0f : 0) +
                 weapon.fireMultiplier - 1.0f);
             
             var waterMultiplier = 1.0f + (
-                (headArmor != null ? headArmor.waterMultiplier - 1.0f : 0) +
-                (bodyArmor != null ? bodyArmor.waterMultiplier - 1.0f : 0) +
+                (_equippedHeadArmor != null ? _equippedHeadArmor.waterMultiplier - 1.0f : 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.waterMultiplier - 1.0f : 0) +
                 weapon.waterMultiplier - 1.0f);
 
             var physicalMultiplier = 1.0f + (
-                (headArmor != null ? headArmor.physicalMultiplier - 1.0f : 0) +
-                (bodyArmor != null ? bodyArmor.physicalMultiplier - 1.0f : 0) +
+                (_equippedHeadArmor != null ? _equippedHeadArmor.physicalMultiplier - 1.0f : 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.physicalMultiplier - 1.0f : 0) +
                 weapon.physicalMultiplier - 1.0f);
 
             Debug.Log("arc mult: " + arcaneMultiplier);
             
-            _attackBehaviour.Use(transform.up,
+            _attackBehaviour.Use(true, transform.up,
                 transform.position + transform.up * 1f,
                 arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
             currentAttack = null;

@@ -4,6 +4,7 @@ namespace Items.Weapons.Scripts
     {
         Arcane,
         Fire,
-        Water
+        Water,
+        Earth
     }
 }

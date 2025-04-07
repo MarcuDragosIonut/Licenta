@@ -11,6 +11,7 @@ TagManager:
   - Loot
   - PlayerAttack
   - Enemy
+  - EnemyAttack
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - Player
   - Obstacle
   - Enemy
-  - 
+  - EnemyAttack
   - 
   - 
   - 
