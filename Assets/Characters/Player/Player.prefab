@@ -333,6 +333,7 @@ GameObject:
   - component: {fileID: 2750788722535751764}
   - component: {fileID: 3954003534112407673}
   - component: {fileID: 1988913403599105876}
+  - component: {fileID: 5601829793084442880}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -561,8 +562,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 4.5
   health: 100
+  maxHealth: 100
+  mana: 20
+  maxMana: 20
   map: {fileID: 0}
-  interactionArea: {fileID: 1677934074840438940}
   playerHead: {fileID: 2562986546267945388}
   playerBody: {fileID: 3514664541222102300}
   playerHand: {fileID: 8611195764875441635}
@@ -573,6 +576,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  playerStatsElement: {fileID: 0}
+--- !u!114 &5601829793084442880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6413249521229404011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e58322ae68631544951d09ebeda0999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  comboList:
+  - comboElements: 0100000002000000
+    result: {fileID: 5414187857502345404, guid: ba904ffbaee541a4488598a67147ae62, type: 3}
+  - comboElements: 0200000001000000
+    result: {fileID: 5414187857502345404, guid: ba904ffbaee541a4488598a67147ae62, type: 3}
 --- !u!1 &8611195764875441635
 GameObject:
   m_ObjectHideFlags: 0

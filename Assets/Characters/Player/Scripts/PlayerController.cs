@@ -41,10 +41,13 @@ namespace Characters.Player.Scripts
         private bool _isTouchingPortal = false;
         private GameObject _collidingLoot;
         private float _lastAttackTime = -Mathf.Infinity;
-        
+        private readonly List<ElementType> _preparedCombo = new();
+        private readonly List<bool> _pressedKeys = new() { false, false, false };
+        private SpellComboController _spellComboController;
+
         private InventoryController _inventoryController;
         private PlayerStatsController _statsController;
-        
+
         private Rigidbody2D _rb;
         private Camera _mainCamera;
         private Animator _bodyAnimator;
@@ -68,6 +71,7 @@ namespace Characters.Player.Scripts
             _handAnimator = playerHand.GetComponent<Animator>();
             _statsController = playerStatsElement.GetComponent<PlayerStatsController>();
             _inventoryController = inventory.GetComponent<InventoryController>();
+            _spellComboController = GetComponent<SpellComboController>();
             EquipWeapon(_inventoryController.equippedWand);
             EquipArmor(_inventoryController.headEquipment);
             EquipArmor(_inventoryController.bodyEquipment);
@@ -107,7 +111,7 @@ namespace Characters.Player.Scripts
                 return;
             }
 
-            if (_collidingLoot!=null && !_isPickingUpLoot && !_collidingLoot.GetComponent<ChestScript>().isOpened)
+            if (_collidingLoot != null && !_isPickingUpLoot && !_collidingLoot.GetComponent<ChestScript>().isOpened)
             {
                 _isPickingUpLoot = true;
                 _inventoryOpened = true;
@@ -121,7 +125,7 @@ namespace Characters.Player.Scripts
         {
             _isPickingUpLoot = false;
         }
-        
+
         public void OnLook(InputAction.CallbackContext context)
         {
             if (_inventoryOpened) return;
@@ -137,7 +141,6 @@ namespace Characters.Player.Scripts
         {
             if (!context.performed || _inventoryOpened || currentAttack == null) return;
 
-            //Debug.Log("Clicked");
             if (_isAttacking == false && _lastAttackTime + _attackBehaviour.cooldown < Time.time)
             {
                 _inventoryController.GetSlotsController().UnhighlightSlots();
@@ -149,7 +152,7 @@ namespace Characters.Player.Scripts
         {
             _skillPoints += enemy.skillPoints;
         }
-        
+
         public void EquipSpell(GameObject spellItem, int spellPosition)
         {
             equippedSpells[spellPosition] = spellItem;
@@ -188,15 +191,6 @@ namespace Characters.Player.Scripts
             }
         }
 
-        public void EquipHeadArmor(GameObject headArmor)
-        {
-            if (headArmor == null) return;
-
-            _equippedHeadArmor = headArmor.GetComponent<ArmorScript>();
-            playerHead.GetComponent<SpriteRenderer>().sprite =
-                headArmor.GetComponent<ArmorScript>().equippedArmorSprite;
-        }
-
         public void EquipWeapon(GameObject weapon)
         {
             if (weapon == null) return;
@@ -214,43 +208,19 @@ namespace Characters.Player.Scripts
             var keyPressed = context.control.name;
             var selectedSpellSlot = int.Parse(keyPressed);
 
-            if (equippedSpells[selectedSpellSlot - 1] != null)
+            if (equippedSpells[selectedSpellSlot - 1] != null && !_pressedKeys[selectedSpellSlot - 1])
             {
-                currentAttack = equippedSpells[selectedSpellSlot - 1].GetComponent<ElementBookScript>().baseAttack;
-                _attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
+                _pressedKeys[selectedSpellSlot - 1] = true;
+                var bookScript = equippedSpells[selectedSpellSlot - 1].GetComponent<ElementBookScript>();
+                _preparedCombo.Add(bookScript.elementType);
+                if (_preparedCombo.Count == 1)
+                {
+                    currentAttack = bookScript.baseAttack;
+                    _attackBehaviour = currentAttack.GetComponent<AttackBehaviour>();
+                }
             }
         }
 
-        public void TakeDamage(AttackBehaviour attack)
-        {
-            var damage = GetDamageFromAttack(attack);
-            health -= damage;
-            _statsController.UpdateStats(health, maxHealth, mana, maxMana);
-        }
-
-        private float GetDamageFromAttack(AttackBehaviour attack)
-        {
-            float arcaneRes = 1.0f, fireRes = 1.0f, waterRes = 1.0f, physRes = 1.0f;
-            
-            if (_equippedBodyArmor != null)
-            {
-                arcaneRes -= 1.0f - _equippedBodyArmor.arcaneReductionMultiplier;
-                fireRes -= 1.0f - _equippedBodyArmor.fireReductionMultiplier;
-                waterRes -= 1.0f - _equippedBodyArmor.waterReductionMultiplier;
-                physRes -= 1.0f - _equippedBodyArmor.physicalReductionMultiplier;
-            }
-
-            if (_equippedHeadArmor != null)
-            {
-                arcaneRes -= 1.0f -  _equippedHeadArmor.arcaneReductionMultiplier;
-                fireRes -= 1.0f - _equippedHeadArmor.fireReductionMultiplier;
-                waterRes -= 1.0f - _equippedHeadArmor.waterReductionMultiplier;
-                physRes -= 1.0f - _equippedHeadArmor.physicalReductionMultiplier;
-            }
-
-            return attack.arcaneDamage * arcaneRes + attack.fireDamage * fireRes + attack.waterDamage * waterRes + attack.physicalDamage * physRes;
-        }
-        
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
@@ -267,12 +237,12 @@ namespace Characters.Player.Scripts
                 (_equippedHeadArmor != null ? _equippedHeadArmor.arcaneMultiplier - 1.0f : 0) +
                 (_equippedBodyArmor != null ? _equippedBodyArmor.arcaneMultiplier - 1.0f : 0) +
                 weapon.arcaneMultiplier - 1.0f);
-            
+
             var fireMultiplier = 1.0f + (
                 (_equippedHeadArmor != null ? _equippedHeadArmor.fireMultiplier - 1.0f : 0) +
                 (_equippedBodyArmor != null ? _equippedBodyArmor.fireMultiplier - 1.0f : 0) +
                 weapon.fireMultiplier - 1.0f);
-            
+
             var waterMultiplier = 1.0f + (
                 (_equippedHeadArmor != null ? _equippedHeadArmor.waterMultiplier - 1.0f : 0) +
                 (_equippedBodyArmor != null ? _equippedBodyArmor.waterMultiplier - 1.0f : 0) +
@@ -283,18 +253,73 @@ namespace Characters.Player.Scripts
                 (_equippedBodyArmor != null ? _equippedBodyArmor.physicalMultiplier - 1.0f : 0) +
                 weapon.physicalMultiplier - 1.0f);
 
-            Debug.Log("arc mult: " + arcaneMultiplier);
-            
-            _attackBehaviour.Use(true, transform.up,
-                transform.position + transform.up * 1f,
-                arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
+            if (_preparedCombo.Count == 1)
+            {
+                _attackBehaviour.Use(true, transform.up,
+                    transform.position + transform.up * 1f,
+                    arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
+            }
+            else
+            {
+                var comboResult = _spellComboController.GetComboResult(_preparedCombo);
+                if (comboResult)
+                {
+                    if (comboResult.CompareTag("PlayerAttack"))
+                    {
+                        comboResult.GetComponent<AttackBehaviour>().Use(true, transform.up,
+                            transform.position + transform.up * 1f, arcaneMultiplier, fireMultiplier, waterMultiplier,
+                            physicalMultiplier);
+                    }
+
+                    if (comboResult.CompareTag("Effect"))
+                    {
+                        var usedEffect = Instantiate(comboResult);
+                        Debug.Log("Og pos " + comboResult.transform.position);
+                        usedEffect.GetComponent<EffectBehaviour>().Init(transform, comboResult.transform.position);
+                    }
+                }
+            }
+
             currentAttack = null;
             _attackBehaviour = null;
             yield return new WaitForSeconds(1.5f);
 
             _wandSpriteRenderer.sprite = _wandWeaponScript.idleSprite;
             _handAnimator.SetBool(IsAttacking, false);
+            _pressedKeys[0] = _pressedKeys[1] = _pressedKeys[2] = false;
+            _preparedCombo.Clear();
             _isAttacking = false;
+        }
+
+        public void TakeDamage(AttackBehaviour attack)
+        {
+            var damage = GetDamageFromAttack(attack);
+            health -= damage;
+            _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+        }
+
+        private float GetDamageFromAttack(AttackBehaviour attack)
+        {
+            float arcaneRes = 1.0f, fireRes = 1.0f, waterRes = 1.0f, physRes = 1.0f;
+
+            if (_equippedBodyArmor != null)
+            {
+                arcaneRes -= 1.0f - _equippedBodyArmor.arcaneReductionMultiplier;
+                fireRes -= 1.0f - _equippedBodyArmor.fireReductionMultiplier;
+                waterRes -= 1.0f - _equippedBodyArmor.waterReductionMultiplier;
+                physRes -= 1.0f - _equippedBodyArmor.physicalReductionMultiplier;
+            }
+
+            if (_equippedHeadArmor != null)
+            {
+                arcaneRes -= 1.0f - _equippedHeadArmor.arcaneReductionMultiplier;
+                fireRes -= 1.0f - _equippedHeadArmor.fireReductionMultiplier;
+                waterRes -= 1.0f - _equippedHeadArmor.waterReductionMultiplier;
+                physRes -= 1.0f - _equippedHeadArmor.physicalReductionMultiplier;
+            }
+
+            return attack.arcaneDamage * arcaneRes + attack.fireDamage * fireRes + attack.waterDamage * waterRes +
+                   attack.physicalDamage * physRes;
         }
 
         private Vector2 GetMouseDirection(Vector2 mousePos)

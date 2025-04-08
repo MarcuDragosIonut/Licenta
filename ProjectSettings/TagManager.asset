@@ -12,6 +12,7 @@ TagManager:
   - PlayerAttack
   - Enemy
   - EnemyAttack
+  - Effect
   layers:
   - Default
   - TransparentFX
@@ -24,7 +25,7 @@ TagManager:
   - Obstacle
   - Enemy
   - EnemyAttack
-  - 
+  - PlayerEffect
   - 
   - 
   - 

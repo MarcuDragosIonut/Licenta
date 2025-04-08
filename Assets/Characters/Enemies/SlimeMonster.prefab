@@ -201,11 +201,11 @@ MonoBehaviour:
   waterRes: 1
   physicalRes: 1
   speed: 1.5
-  attackDamage: 8
   attackRange: 1
-  cooldown: 1.5
   skillPoints: 1
   player: {fileID: 0}
+  attackPool:
+  - {fileID: 7098282952803141574, guid: 62ce2cfb0f8dd554faf74f26f11c389d, type: 3}
 --- !u!114 &5928418837629002553
 MonoBehaviour:
   m_ObjectHideFlags: 0

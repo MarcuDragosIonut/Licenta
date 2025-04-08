@@ -7312,14 +7312,6 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 5350304909965886846}
-    - target: {fileID: 5780212434243907567, guid: 528a8e03299254a47aaf427066403134, type: 3}
-      propertyPath: attackPool.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5780212434243907567, guid: 528a8e03299254a47aaf427066403134, type: 3}
-      propertyPath: attackPool.Array.data[0]
-      value: 
-      objectReference: {fileID: 7098282952803141574, guid: 62ce2cfb0f8dd554faf74f26f11c389d, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
