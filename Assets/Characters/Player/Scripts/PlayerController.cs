@@ -40,6 +40,7 @@ namespace Characters.Player.Scripts
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private GameObject _collidingLoot;
+        private float _currentCooldown = 0.0f;
         private float _lastAttackTime = -Mathf.Infinity;
         private readonly List<ElementType> _preparedCombo = new();
         private readonly List<bool> _pressedKeys = new() { false, false, false };
@@ -141,7 +142,7 @@ namespace Characters.Player.Scripts
         {
             if (!context.performed || _inventoryOpened || currentAttack == null) return;
 
-            if (_isAttacking == false && _lastAttackTime + _attackBehaviour.cooldown < Time.time)
+            if (IsReadyToAttack())
             {
                 _inventoryController.GetSlotsController().UnhighlightSlots();
                 StartCoroutine(HandleAttack());
@@ -208,7 +209,7 @@ namespace Characters.Player.Scripts
             var keyPressed = context.control.name;
             var selectedSpellSlot = int.Parse(keyPressed);
 
-            if (equippedSpells[selectedSpellSlot - 1] != null && !_pressedKeys[selectedSpellSlot - 1])
+            if (equippedSpells[selectedSpellSlot - 1] != null && !_pressedKeys[selectedSpellSlot - 1] && IsReadyToAttack())
             {
                 _pressedKeys[selectedSpellSlot - 1] = true;
                 var bookScript = equippedSpells[selectedSpellSlot - 1].GetComponent<ElementBookScript>();
@@ -221,6 +222,11 @@ namespace Characters.Player.Scripts
             }
         }
 
+        public bool IsReadyToAttack()
+        {
+            return _isAttacking == false && _lastAttackTime + _currentCooldown < Time.time;
+        }
+        
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
@@ -253,11 +259,14 @@ namespace Characters.Player.Scripts
                 (_equippedBodyArmor != null ? _equippedBodyArmor.physicalMultiplier - 1.0f : 0) +
                 weapon.physicalMultiplier - 1.0f);
 
+            var cooldown = 0.0f;
+            
             if (_preparedCombo.Count == 1)
             {
                 _attackBehaviour.Use(true, transform.up,
                     transform.position + transform.up * 1f,
                     arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
+                cooldown = _attackBehaviour.cooldown;
             }
             else
             {
@@ -266,20 +275,25 @@ namespace Characters.Player.Scripts
                 {
                     if (comboResult.CompareTag("PlayerAttack"))
                     {
-                        comboResult.GetComponent<AttackBehaviour>().Use(true, transform.up,
+                        var comboResultScript = comboResult.GetComponent<AttackBehaviour>();
+                        comboResultScript.Use(true, transform.up,
                             transform.position + transform.up * 1f, arcaneMultiplier, fireMultiplier, waterMultiplier,
                             physicalMultiplier);
+                        cooldown = comboResultScript.cooldown;
                     }
 
                     if (comboResult.CompareTag("Effect"))
                     {
                         var usedEffect = Instantiate(comboResult);
                         Debug.Log("Og pos " + comboResult.transform.position);
-                        usedEffect.GetComponent<EffectBehaviour>().Init(transform, comboResult.transform.position);
+                        var usedEffectScript = usedEffect.GetComponent<EffectBehaviour>();
+                        usedEffectScript.Init(transform, comboResult.transform.position);
+                        cooldown = usedEffectScript.cooldown;
                     }
                 }
             }
 
+            _currentCooldown = cooldown;
             currentAttack = null;
             _attackBehaviour = null;
             yield return new WaitForSeconds(1.5f);
@@ -290,7 +304,7 @@ namespace Characters.Player.Scripts
             _preparedCombo.Clear();
             _isAttacking = false;
         }
-
+        
         public void TakeDamage(AttackBehaviour attack)
         {
             var damage = GetDamageFromAttack(attack);

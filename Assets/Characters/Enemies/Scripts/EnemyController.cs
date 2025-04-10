@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Characters.Player.Scripts;
 using Items.Weapons.Attacks.Scripts;
 using Pathfinding;
+using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Characters.Enemies.Scripts
 {
@@ -20,6 +23,7 @@ namespace Characters.Enemies.Scripts
         public Transform player;
         public GameObject[] attackPool;
 
+        private bool _effectsApplied = false;
         private bool _canAttack = true;
         private AIPath _aiPath;
         private AIDestinationSetter _aiDestinationSetter;
@@ -58,21 +62,23 @@ namespace Characters.Enemies.Scripts
 
             if(_animator) _animator.SetBool(IsMoving, _aiPath.velocity.magnitude > 0.01f);
 
-            var distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            if (_effectsApplied) return;
             
-            if (distanceToPlayer <= attackRange)
+            var distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            var hit = Physics2D.Raycast(transform.position, player.position - transform.position, distanceToPlayer, LayerMask.GetMask("Obstacle"));
+            if (distanceToPlayer <= attackRange && !hit.collider)
             {
-                if (_canAttack && _attackCooldown < Time.time)
-                {
-                    Attack();
-                }
-
                 if (attackRange >= 1.1f)
                 {
                     _aiPath.canMove = false;
                     Vector2 direction = player.position - transform.position;
                     var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                     transform.rotation = Quaternion.Euler(0f, 0f, angle - 90);
+                }
+
+                if (_canAttack && _attackCooldown < Time.time)
+                {
+                    Attack();
                 }
             }
             else
@@ -96,12 +102,32 @@ namespace Characters.Enemies.Scripts
             }
             else
             {
-                if (attack.knockBack <= 0) return;
-                var attackDirection = (_rb.position - (Vector2)attack.transform.position).normalized;
-                _rb.AddForce(attackDirection * attack.knockBack, ForceMode2D.Impulse);
+                if (attack.knockBack > 0) StartCoroutine(HandleKnockBack(attack));
+                if (attack.slowEffect > 0) StartCoroutine(HandleSlow(attack));
             }
         }
 
+        private IEnumerator HandleKnockBack(AttackBehaviour attack)
+        {
+            _effectsApplied = true;
+            _aiPath.canMove = false;
+            var attackDirection = (_rb.position - (Vector2)attack.transform.position).normalized;
+            _rb.velocity = attackDirection * attack.knockBack;
+            Debug.Log("KnockBack " + _rb.velocity);
+            yield return new WaitForSeconds(0.15f);
+            _rb.velocity = Vector2.zero;
+            _aiPath.canMove = true;
+            _effectsApplied = false;
+        }
+
+        private IEnumerator HandleSlow(AttackBehaviour attack)
+        {
+            var actualSlow = Math.Min(attack.slowEffect, _aiPath.maxSpeed - 0.05f);
+            _aiPath.maxSpeed -= actualSlow;
+            yield return new WaitForSeconds(attack.slowDuration);
+            _aiPath.maxSpeed += actualSlow;
+        }
+        
         private void Attack()
         {
             _canAttack = false;
@@ -120,7 +146,7 @@ namespace Characters.Enemies.Scripts
             }
 
             _attackCooldown = Time.time + chosenAttack.cooldown;
-            StartCoroutine(Stun(attackStagger));
+            //StartCoroutine(Stun(attackStagger));
 
             _canAttack = true;
         }

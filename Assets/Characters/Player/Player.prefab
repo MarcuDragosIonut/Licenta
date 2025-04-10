@@ -594,6 +594,12 @@ MonoBehaviour:
     result: {fileID: 5414187857502345404, guid: ba904ffbaee541a4488598a67147ae62, type: 3}
   - comboElements: 0200000001000000
     result: {fileID: 5414187857502345404, guid: ba904ffbaee541a4488598a67147ae62, type: 3}
+  - comboElements: 0000000002000000
+    result: {fileID: 7098282952803141574, guid: 5f0f5c0dbd9f4694bb37dda46963a76f, type: 3}
+  - comboElements: 0200000003000000
+    result: {fileID: 7098282952803141574, guid: eedb95692c1f6c440a3eb5376098fb04, type: 3}
+  - comboElements: 0300000002000000
+    result: {fileID: 7098282952803141574, guid: eedb95692c1f6c440a3eb5376098fb04, type: 3}
 --- !u!1 &8611195764875441635
 GameObject:
   m_ObjectHideFlags: 0

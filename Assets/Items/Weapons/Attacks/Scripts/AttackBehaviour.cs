@@ -14,6 +14,8 @@ namespace Items.Weapons.Attacks.Scripts
         public float waterDamage = 0.0f;
         public float physicalDamage = 0.0f;
         public float knockBack = 0.0f;
+        public float slowEffect = 0.0f;
+        public int slowDuration = 0;
         public float travelSpeed;
         public float cooldown;
         public bool isRanged = true;
@@ -39,6 +41,8 @@ namespace Items.Weapons.Attacks.Scripts
             attackScript.SetPlayerAttack(isPlayerAttack);
 
             attack.GetComponent<Rigidbody2D>().velocity = direction * travelSpeed;
+            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            attack.transform.rotation = Quaternion.Euler(0, 0, angle - 90);
         }
 
         public void Use(PlayerController playerController)

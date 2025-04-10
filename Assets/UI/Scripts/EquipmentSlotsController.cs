@@ -1,7 +1,7 @@
-using System;
-using Unity.VisualScripting;
+using Characters.Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Networking.PlayerConnection;
 using UnityEngine.UI;
 
 namespace UI.Scripts
@@ -13,8 +13,15 @@ namespace UI.Scripts
         public Sprite normalBorder;
         public Sprite highlightedBorder;
         
+        private PlayerController _playerController;
         private readonly bool[] _highlightedSlot = { false, false, false };
         private readonly bool[] _occupiedSlot = { false, false, false };
+
+        private void Start()
+        {
+            _playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        }
+
         public void ChangeSlotIcon(int slotIndex, Sprite newIcon)
         {
             Debug.Log(slots[slotIndex].GetComponentInChildren<Image>());
@@ -24,6 +31,7 @@ namespace UI.Scripts
 
         public void HighlightSlot(InputAction.CallbackContext context)
         {
+            if (!_playerController.IsReadyToAttack()) return;
             var slotIndex = int.Parse(context.control.name) - 1;
             if (!_occupiedSlot[slotIndex] || _highlightedSlot[slotIndex]) return;
             
