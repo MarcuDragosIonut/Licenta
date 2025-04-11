@@ -293,6 +293,7 @@ namespace Characters.Player.Scripts
                 }
             }
 
+            Debug.Log("CD " + cooldown);
             _currentCooldown = cooldown;
             currentAttack = null;
             _attackBehaviour = null;
