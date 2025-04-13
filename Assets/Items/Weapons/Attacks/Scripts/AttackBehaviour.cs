@@ -18,6 +18,7 @@ namespace Items.Weapons.Attacks.Scripts
         public int slowDuration = 0;
         public float travelSpeed;
         public float cooldown;
+        public float manaCost = 2.0f;
         public bool isRanged = true;
         public float attackStagger = 0.5f;
 

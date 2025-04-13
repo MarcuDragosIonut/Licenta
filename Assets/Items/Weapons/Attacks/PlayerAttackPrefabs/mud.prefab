@@ -108,6 +108,7 @@ MonoBehaviour:
   slowDuration: 4
   travelSpeed: 2.5
   cooldown: 2
+  manaCost: 3.5
   isRanged: 1
   attackStagger: 0.5
 --- !u!50 &2656481940752172729

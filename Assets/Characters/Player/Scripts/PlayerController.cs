@@ -20,8 +20,8 @@ namespace Characters.Player.Scripts
         public float speed = 3.0f;
         public float health = 100.0f;
         public float maxHealth = 100.0f;
-        public int mana = 20;
-        public int maxMana = 20;
+        public float mana = 20;
+        public float maxMana = 20;
         public GameObject map;
         public GameObject playerHead;
         public GameObject playerBody;
@@ -40,6 +40,7 @@ namespace Characters.Player.Scripts
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private GameObject _collidingLoot;
+        private float _manaRecovery = 0.1f;
         private float _currentCooldown = 0.0f;
         private float _lastAttackTime = -Mathf.Infinity;
         private readonly List<ElementType> _preparedCombo = new();
@@ -259,14 +260,18 @@ namespace Characters.Player.Scripts
                 (_equippedBodyArmor != null ? _equippedBodyArmor.physicalMultiplier - 1.0f : 0) +
                 weapon.physicalMultiplier - 1.0f);
 
-            var cooldown = 0.0f;
+            float cooldown = 0.0f, manaCost = 0.0f;
             
             if (_preparedCombo.Count == 1)
             {
-                _attackBehaviour.Use(true, transform.up,
-                    transform.position + transform.up * 1f,
-                    arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
-                cooldown = _attackBehaviour.cooldown;
+                manaCost = _attackBehaviour.manaCost;
+                if (manaCost <= mana)
+                {
+                    _attackBehaviour.Use(true, transform.up,
+                        transform.position + transform.up * 1f,
+                        arcaneMultiplier, fireMultiplier, waterMultiplier, physicalMultiplier);
+                    cooldown = _attackBehaviour.cooldown;
+                }
             }
             else
             {
@@ -276,24 +281,37 @@ namespace Characters.Player.Scripts
                     if (comboResult.CompareTag("PlayerAttack"))
                     {
                         var comboResultScript = comboResult.GetComponent<AttackBehaviour>();
-                        comboResultScript.Use(true, transform.up,
-                            transform.position + transform.up * 1f, arcaneMultiplier, fireMultiplier, waterMultiplier,
-                            physicalMultiplier);
-                        cooldown = comboResultScript.cooldown;
+                        manaCost = comboResultScript.manaCost;
+                        if (manaCost <= mana)
+                        {
+                            cooldown = comboResultScript.cooldown;
+                            comboResultScript.Use(true, transform.up,
+                                    transform.position + transform.up * 1f, arcaneMultiplier, fireMultiplier,
+                                    waterMultiplier,
+                                    physicalMultiplier);
+                        }
                     }
 
                     if (comboResult.CompareTag("Effect"))
                     {
-                        var usedEffect = Instantiate(comboResult);
-                        Debug.Log("Og pos " + comboResult.transform.position);
-                        var usedEffectScript = usedEffect.GetComponent<EffectBehaviour>();
-                        usedEffectScript.Init(transform, comboResult.transform.position);
-                        cooldown = usedEffectScript.cooldown;
+                        manaCost = comboResult.GetComponent<EffectBehaviour>().manaCost;
+                        if (manaCost <= mana)
+                        {
+                            var usedEffect = Instantiate(comboResult);
+                            var usedEffectScript = usedEffect.GetComponent<EffectBehaviour>();
+                            usedEffectScript.Init(transform, comboResult.transform.position);
+                            cooldown = usedEffectScript.cooldown;
+                        }
                     }
                 }
             }
 
             Debug.Log("CD " + cooldown);
+            if (manaCost <= mana)
+            {
+                mana -= manaCost;
+                _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+            }
             _currentCooldown = cooldown;
             currentAttack = null;
             _attackBehaviour = null;
@@ -374,9 +392,23 @@ namespace Characters.Player.Scripts
             }
         }
 
+        private IEnumerator ManaRegain()
+        {
+            while (true)
+            {
+                if (mana < maxMana)
+                {
+                    mana += Math.Min(_manaRecovery, maxMana - mana);
+                    _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+                }
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+        
         private void FixedUpdate()
         {
             _rb.velocity = _velocity;
+            if (mana < maxMana) mana += _manaRecovery;
         }
     }
 }

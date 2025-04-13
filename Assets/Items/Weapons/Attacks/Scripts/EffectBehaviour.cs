@@ -7,6 +7,7 @@ namespace Items.Weapons.Attacks.Scripts
     public class EffectBehaviour : MonoBehaviour
     {
         public float cooldown = 2.0f;
+        public float manaCost = 3.0f;
         private bool _isActive = true;
         private Transform _player;
         private Vector3 _initialOffset;

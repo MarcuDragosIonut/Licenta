@@ -19,10 +19,10 @@ namespace UI.Scripts
             _mpText = mp.GetComponent<TMP_Text>();
         }
 
-        public void UpdateStats(float hp, float maxHp, int mana, int maxMana)
+        public void UpdateStats(float hp, float maxHp, float mana, float maxMana)
         {
             _hpText.text = $"{(int)hp}/{(int)maxHp}";
-            _mpText.text = $"{mana} / {maxMana}";
+            _mpText.text = $"{(int)mana} / {(int)maxMana}";
         }
     }
 }
