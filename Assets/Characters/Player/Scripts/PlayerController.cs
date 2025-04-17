@@ -109,7 +109,7 @@ namespace Characters.Player.Scripts
             Debug.Log("Pressed E");
             if (_isTouchingPortal)
             {
-                StartCoroutine(map.GetComponent<GenerateMap>().changeMap(1));
+                StartCoroutine(map.GetComponent<GenerateMap>().ChangeMap());
                 return;
             }
 
