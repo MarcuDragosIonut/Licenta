@@ -10,6 +10,7 @@ using Map.Scripts;
 using Textures.Map.Scripts;
 using UI.Scripts;
 using Unity.VisualScripting;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -82,6 +83,7 @@ namespace Characters.Player.Scripts
         private void Start()
         {
             _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+            InvokeRepeating(nameof(ManaRegain), 0, 0.5f);
         }
 
         public void ChangeInventoryVisibility()
@@ -210,7 +212,8 @@ namespace Characters.Player.Scripts
             var keyPressed = context.control.name;
             var selectedSpellSlot = int.Parse(keyPressed);
 
-            if (equippedSpells[selectedSpellSlot - 1] != null && !_pressedKeys[selectedSpellSlot - 1] && IsReadyToAttack())
+            if (equippedSpells[selectedSpellSlot - 1] != null && !_pressedKeys[selectedSpellSlot - 1] &&
+                IsReadyToAttack())
             {
                 _pressedKeys[selectedSpellSlot - 1] = true;
                 var bookScript = equippedSpells[selectedSpellSlot - 1].GetComponent<ElementBookScript>();
@@ -227,7 +230,7 @@ namespace Characters.Player.Scripts
         {
             return _isAttacking == false && _lastAttackTime + _currentCooldown < Time.time;
         }
-        
+
         private IEnumerator HandleAttack()
         {
             _isAttacking = true;
@@ -261,7 +264,7 @@ namespace Characters.Player.Scripts
                 weapon.physicalMultiplier - 1.0f);
 
             float cooldown = 0.0f, manaCost = 0.0f;
-            
+
             if (_preparedCombo.Count == 1)
             {
                 manaCost = _attackBehaviour.manaCost;
@@ -286,9 +289,9 @@ namespace Characters.Player.Scripts
                         {
                             cooldown = comboResultScript.cooldown;
                             comboResultScript.Use(true, transform.up,
-                                    transform.position + transform.up * 1f, arcaneMultiplier, fireMultiplier,
-                                    waterMultiplier,
-                                    physicalMultiplier);
+                                transform.position + transform.up * 1f, arcaneMultiplier, fireMultiplier,
+                                waterMultiplier,
+                                physicalMultiplier);
                         }
                     }
 
@@ -312,6 +315,7 @@ namespace Characters.Player.Scripts
                 mana -= manaCost;
                 _statsController.UpdateStats(health, maxHealth, mana, maxMana);
             }
+
             _currentCooldown = cooldown;
             currentAttack = null;
             _attackBehaviour = null;
@@ -323,7 +327,7 @@ namespace Characters.Player.Scripts
             _preparedCombo.Clear();
             _isAttacking = false;
         }
-        
+
         public void TakeDamage(AttackBehaviour attack)
         {
             var damage = GetDamageFromAttack(attack);
@@ -392,23 +396,17 @@ namespace Characters.Player.Scripts
             }
         }
 
-        private IEnumerator ManaRegain()
+        private void ManaRegain()
         {
-            while (true)
-            {
-                if (mana < maxMana)
-                {
-                    mana += Math.Min(_manaRecovery, maxMana - mana);
-                    _statsController.UpdateStats(health, maxHealth, mana, maxMana);
-                }
-                yield return new WaitForSeconds(0.5f);
-            }
+            if (mana >= maxMana) return;
+            
+            mana += Math.Min(_manaRecovery, maxMana - mana);
+            _statsController.UpdateStats(health, maxHealth, mana, maxMana);
         }
-        
+
         private void FixedUpdate()
         {
             _rb.velocity = _velocity;
-            if (mana < maxMana) mana += _manaRecovery;
         }
     }
 }
