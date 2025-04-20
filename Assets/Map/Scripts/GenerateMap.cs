@@ -23,9 +23,9 @@ namespace Textures.Map.Scripts
 
         private readonly int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
 
-        private int[,] _tileGrid =
-            new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding + 2),
-                MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding + 2)];
+        private readonly int[,] _tileGrid =
+            new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
+                MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding)];
 
         private Vector2Int _startCoords;
         private Vector2Int _endCoords;
@@ -63,6 +63,7 @@ namespace Textures.Map.Scripts
             GenerateMapLayout();
             GenerateRooms();
             GenerateCorridors();
+            GenerateUnwalkableTiles();
             AstarPath.active.Scan();
         }
 
@@ -70,11 +71,11 @@ namespace Textures.Map.Scripts
         {
             _roomCount = Random.Range(8, 14);
             int startX = Random.Range(0, MaxRoomCountPerDimension), startY = Random.Range(0, MaxRoomCountPerDimension);
-            Debug.Log("startcoords: " + startX + " " + startY + " nr rooms: " + _roomCount);
+            Debug.Log("start coords: " + startX + " " + startY + " nr rooms: " + _roomCount);
             _roomGrid[startX, startY] = 1;
             _startCoords = new Vector2Int(startX, startY);
             var roomCandidates = new List<Vector2Int>();
-            roomCandidates.AddRange(GetRoomNeighbors(_roomGrid, startX, startY, 0));
+            roomCandidates.AddRange(GetMatrix4Neighbors(_roomGrid, startX, startY, 0));
             var exploredCandidates = new HashSet<Vector2Int>(roomCandidates);
             var endRoomIndex = Random.Range(0, _roomCount);
             for (var roomIndex = 0; roomIndex < _roomCount; roomIndex++)
@@ -87,9 +88,20 @@ namespace Textures.Map.Scripts
 
                 roomCandidates[chosenRoomIndex] = roomCandidates[^1];
                 roomCandidates.RemoveAt(roomCandidates.Count - 1);
-                var roomNeighbors = GetRoomNeighbors(_roomGrid, newRoomCoords.x, newRoomCoords.y, 0);
+                var roomNeighbors = GetMatrix4Neighbors(_roomGrid, newRoomCoords.x, newRoomCoords.y, 0);
                 roomCandidates.AddRange(roomNeighbors.Where(coords => !exploredCandidates.Contains(coords)));
                 exploredCandidates.UnionWith(roomNeighbors);
+            }
+
+            for (int i = _roomGrid.GetLength(1) - 1; i >= 0; i--)
+            {
+                var rez = "";
+                for (int j = 0; j < _roomGrid.GetLength(0); j++)
+                {
+                    rez += _roomGrid[j, i] + " ";
+                }
+
+                Debug.Log(rez);
             }
         }
 
@@ -141,7 +153,7 @@ namespace Textures.Map.Scripts
             while (true)
             {
                 traversedRooms.Add(currentCoords);
-                foreach (var neighbor in GetRoomNeighbors(_roomGrid, currentCoords.x, currentCoords.y, 1))
+                foreach (var neighbor in GetMatrix4Neighbors(_roomGrid, currentCoords.x, currentCoords.y, 1))
                 {
                     if (!traversedRooms.Contains(neighbor))
                     {
@@ -179,11 +191,11 @@ namespace Textures.Map.Scripts
                 firstRoomPos.x, // rooms are always adjacent, result will be the direction the corridor moves in
                 secondRoomPos.y - firstRoomPos.y);
             var currentPos = new Vector2(
-                firstRoomPos.x * (MaxRoomSize + RoomPadding) + 
+                firstRoomPos.x * (MaxRoomSize + RoomPadding) +
                 (direction.x == 1 ? MinRoomSize : 0) +
                 (direction.x == -1 ? MaxRoomSize - MinRoomSize : 0) +
                 (direction.y != 0 ? firstRoomCorridorPos : 0),
-                firstRoomPos.y * (MaxRoomSize + RoomPadding) + 
+                firstRoomPos.y * (MaxRoomSize + RoomPadding) +
                 (direction.y == 1 ? MinRoomSize : 0) +
                 (direction.y == -1 ? MaxRoomSize - MinRoomSize : 0) +
                 (direction.x != 0 ? firstRoomCorridorPos : 0)
@@ -218,7 +230,38 @@ namespace Textures.Map.Scripts
             }
         }
 
-        private List<Vector2Int> GetRoomNeighbors(int[,] grid, int x, int y, int value)
+        private void GenerateUnwalkableTiles()
+        {
+            var tileGridLength = _tileGrid.GetLength(0);
+            for (var x = 0; x < tileGridLength; x++)
+            {
+                for (var y = 0; y < tileGridLength; y++)
+                {
+                    int roomGridX = x / (MaxRoomSize + RoomPadding), roomGridY = y / (MaxRoomSize + RoomPadding);
+                    // if a room exists on this tile or in its vicinity create border
+                    if ((_roomGrid[roomGridX, roomGridY] != 0 || (_roomGrid[roomGridX, roomGridY] == 0 &&
+                                                                  GetMatrix8Neighbors(_roomGrid, roomGridX, roomGridY,
+                                                                      1).Count > 0)) &&
+                        (x == 0 || y == 0 || x == tileGridLength - 1 || y == tileGridLength - 1))
+                    {
+                        CreateBorder(x, y,
+                            new Vector2(x == 0 ? -1 : x == tileGridLength - 1 ? 1 : 0,
+                                y == 0 ? -1 : y == tileGridLength - 1 ? 1 : 0));
+                    }
+
+                    // if a room exists on this tile or in its vicinity fill up unused tiles with unwalkable prefabs
+                    if (_roomGrid[roomGridX, roomGridY] == 0 &&
+                        GetMatrix8Neighbors(_roomGrid, roomGridX, roomGridY, 1).Count == 0) continue;
+
+                    if (_tileGrid[x, y] == 0)
+                    {
+                        InstantiateBorder(x * 2, y * 2, GetMatrix4Neighbors(_tileGrid, x, y, 1).Count > 0 ? 1 : 0);
+                    }
+                }
+            }
+        }
+
+        private List<Vector2Int> GetMatrix4Neighbors(int[,] grid, int x, int y, int value)
         {
             var result = new List<Vector2Int>();
 
@@ -230,8 +273,24 @@ namespace Textures.Map.Scripts
             return result;
         }
 
+        private List<Vector2Int> GetMatrix8Neighbors(int[,] grid, int x, int y, int value)
+        {
+            var result = GetMatrix4Neighbors(grid, x, y, value);
+
+            if (x > 0 && y > 0 && grid[x - 1, y - 1] == value) result.Add(new Vector2Int(x - 1, y - 1));
+            if (x < grid.GetLength(0) - 1 && y > 0 && grid[x + 1, y - 1] == value)
+                result.Add(new Vector2Int(x + 1, y - 1));
+            if (x > 0 && y < grid.GetLength(1) - 1 && grid[x - 1, y + 1] == value)
+                result.Add(new Vector2Int(x - 1, y + 1));
+            if (x < grid.GetLength(0) - 1 && y < grid.GetLength(1) - 1 && grid[x + 1, y + 1] == value)
+                result.Add(new Vector2Int(x + 1, y + 1));
+
+            return result;
+        }
+
         private void CreateBorder(int x, int y, Vector2 dir)
         {
+            Debug.Log("CREATE BORDER: " + x + " " + y + " " + dir);
             if (dir.y != 0)
             {
                 for (var borderObjectIndex = 1; borderObjectIndex <= borderLength; borderObjectIndex++)
