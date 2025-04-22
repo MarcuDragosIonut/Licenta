@@ -27,6 +27,7 @@ namespace Textures.Map.Scripts
             new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
                 MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding)];
 
+        private readonly List<List<Vector2Int>> _freeTilesInRoom = new List<List<Vector2Int>>();
         private Vector2Int _startCoords;
         private Vector2Int _endCoords;
         private int _roomCount;
@@ -37,11 +38,20 @@ namespace Textures.Map.Scripts
         private const int MaxRoomCountPerDimension = 6;
         private const int RoomPadding = 4;
         private const float NoiseScale = 0.8f;
-        private const float LowThreshold = 0.45f;
-        private const float HighThreshold = 0.6f;
+        private const float RoomShapeThreshold = 0.45f;
+        private const float ObstacleThreshold = 0.6f;
+        private const float ObstaclePerlinScale = 2.5f;
 
         public IEnumerator ChangeMap()
         {
+            for (var x = 0; x < MaxRoomCountPerDimension; x++)
+            {
+                for (var y = 0; y < MaxRoomCountPerDimension; y++)
+                {
+                    _freeTilesInRoom[x + y * MaxRoomCountPerDimension].Clear();
+                }
+            }
+
             Vector2 portalPosition = _portal.transform.position;
             Destroy(_portal);
             _portal = Instantiate(portalPrefabs[1], portalPosition, Quaternion.identity);
@@ -54,24 +64,39 @@ namespace Textures.Map.Scripts
                 Destroy(transform.GetChild(i).gameObject);
             }
 
-            GenerateRoom(0, 0, true);
+            CreateMap();
             AstarPath.active.Scan();
         }
 
         private void Start()
         {
+            for (var x = 0; x < MaxRoomCountPerDimension; x++)
+            {
+                for (var y = 0; y < MaxRoomCountPerDimension; y++)
+                {
+                    _freeTilesInRoom.Add(new List<Vector2Int>());
+                }
+            }
+
+            CreateMap();
+            AstarPath.active.Scan();
+        }
+
+        private void CreateMap()
+        {
             GenerateMapLayout();
             GenerateRooms();
             GenerateCorridors();
             GenerateUnwalkableTiles();
-            AstarPath.active.Scan();
+            GenerateObstacles();
+            GenerateMapSpawns();
         }
 
         private void GenerateMapLayout()
         {
             _roomCount = Random.Range(8, 14);
             int startX = Random.Range(0, MaxRoomCountPerDimension), startY = Random.Range(0, MaxRoomCountPerDimension);
-            Debug.Log("start coords: " + startX + " " + startY + " nr rooms: " + _roomCount);
+            // Debug.Log("start coords: " + startX + " " + startY + " nr rooms: " + _roomCount);
             _roomGrid[startX, startY] = 1;
             _startCoords = new Vector2Int(startX, startY);
             var roomCandidates = new List<Vector2Int>();
@@ -93,6 +118,7 @@ namespace Textures.Map.Scripts
                 exploredCandidates.UnionWith(roomNeighbors);
             }
 
+            /*
             for (int i = _roomGrid.GetLength(1) - 1; i >= 0; i--)
             {
                 var rez = "";
@@ -103,6 +129,7 @@ namespace Textures.Map.Scripts
 
                 Debug.Log(rez);
             }
+            */
         }
 
         private void GenerateRooms()
@@ -132,7 +159,7 @@ namespace Textures.Map.Scripts
                     if (y == 0 || y == roomLength - 1 || x == 0 || x == roomWidth - 1)
                     {
                         var noise = Mathf.PerlinNoise((x + xSeed) * NoiseScale, (y + ySeed) * NoiseScale);
-                        if (noise < LowThreshold) continue;
+                        if (noise < RoomShapeThreshold) continue;
                     }
 
                     var currentPosition = new Vector2(lowX + widthOffset + x, lowY + lengthOffset + y);
@@ -206,7 +233,7 @@ namespace Textures.Map.Scripts
                 if (_tileGrid[(int)currentPos.x, (int)currentPos.y] == 0)
                     Instantiate(groundPrefabs[Random.Range(0, groundPrefabs.Length)], currentPos * 2,
                         Quaternion.identity).transform.parent = transform;
-                _tileGrid[(int)currentPos.x, (int)currentPos.y] = 1;
+                _tileGrid[(int)currentPos.x, (int)currentPos.y] = 2;
                 counter++;
                 if (counter == directionTileLimit * 2 + 1) break;
                 if (counter == directionTileLimit)
@@ -253,6 +280,7 @@ namespace Textures.Map.Scripts
                     if (_roomGrid[roomGridX, roomGridY] == 0 &&
                         GetMatrix8Neighbors(_roomGrid, roomGridX, roomGridY, 1).Count == 0) continue;
 
+                    if (_tileGrid[x, y] == 1 && GetMatrix4Neighbors(_tileGrid, x, y, 0).Count == 4) _tileGrid[x, y] = 0;
                     if (_tileGrid[x, y] == 0)
                     {
                         InstantiateBorder(x * 2, y * 2, GetMatrix4Neighbors(_tileGrid, x, y, 1).Count > 0 ? 1 : 0);
@@ -261,36 +289,9 @@ namespace Textures.Map.Scripts
             }
         }
 
-        private List<Vector2Int> GetMatrix4Neighbors(int[,] grid, int x, int y, int value)
-        {
-            var result = new List<Vector2Int>();
-
-            if (x > 0 && grid[x - 1, y] == value) result.Add(new Vector2Int(x - 1, y));
-            if (x < grid.GetLength(0) - 1 && grid[x + 1, y] == value) result.Add(new Vector2Int(x + 1, y));
-            if (y > 0 && grid[x, y - 1] == value) result.Add(new Vector2Int(x, y - 1));
-            if (y < grid.GetLength(1) - 1 && grid[x, y + 1] == value) result.Add(new Vector2Int(x, y + 1));
-
-            return result;
-        }
-
-        private List<Vector2Int> GetMatrix8Neighbors(int[,] grid, int x, int y, int value)
-        {
-            var result = GetMatrix4Neighbors(grid, x, y, value);
-
-            if (x > 0 && y > 0 && grid[x - 1, y - 1] == value) result.Add(new Vector2Int(x - 1, y - 1));
-            if (x < grid.GetLength(0) - 1 && y > 0 && grid[x + 1, y - 1] == value)
-                result.Add(new Vector2Int(x + 1, y - 1));
-            if (x > 0 && y < grid.GetLength(1) - 1 && grid[x - 1, y + 1] == value)
-                result.Add(new Vector2Int(x - 1, y + 1));
-            if (x < grid.GetLength(0) - 1 && y < grid.GetLength(1) - 1 && grid[x + 1, y + 1] == value)
-                result.Add(new Vector2Int(x + 1, y + 1));
-
-            return result;
-        }
-
         private void CreateBorder(int x, int y, Vector2 dir)
         {
-            Debug.Log("CREATE BORDER: " + x + " " + y + " " + dir);
+            // Debug.Log("CREATE BORDER: " + x + " " + y + " " + dir);
             if (dir.y != 0)
             {
                 for (var borderObjectIndex = 1; borderObjectIndex <= borderLength; borderObjectIndex++)
@@ -322,6 +323,109 @@ namespace Textures.Map.Scripts
             GameObject borderObject = Instantiate(borderPrefabs[borderPrefabIndex],
                 new Vector2(x, y), Quaternion.identity);
             borderObject.transform.parent = transform;
+        }
+
+        private void GenerateObstacles()
+        {
+            float seedX = Random.Range(0, 1000.0f), seedY = Random.Range(0, 1000.0f);
+            for (var y = 0; y < MaxRoomCountPerDimension; y++)
+            {
+                for (var x = 0; x < MaxRoomCountPerDimension; x++)
+                {
+                    if (_roomGrid[x, y] != 1) continue;
+
+                    for (var roomY = 0; roomY < MaxRoomSize; roomY++)
+                    {
+                        var tileY = y * (MaxRoomSize + RoomPadding) + roomY;
+                        for (var roomX = 0; roomX < MaxRoomSize; roomX++)
+                        {
+                            var tileX = x * (MaxRoomSize + RoomPadding) + roomX;
+                            var chance = Mathf.PerlinNoise(
+                                seedX + (float)roomX / MaxRoomSize * ObstaclePerlinScale,
+                                seedY + (float)roomY / MaxRoomSize * ObstaclePerlinScale);
+
+                            // Debug.Log(roomX + " " + roomY + " details: " + _tileGrid[tileX, tileY] + " " + chance + " " + GetMatrix8Neighbors(_tileGrid, tileX, tileY, 0).Count);
+                            if (_tileGrid[tileX, tileY] == 1 && chance > ObstacleThreshold &&
+                                GetMatrix8Neighbors(_tileGrid, tileX, tileY, 0).Count < 2)
+                            {
+                                Instantiate(obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)],
+                                        new Vector2(tileX * 2, tileY * 2), Quaternion.identity).transform.parent =
+                                    transform;
+                                foreach (var neighbor in GetMatrix8Neighbors(_tileGrid, tileX, tileY, 1))
+                                {
+                                    _tileGrid[neighbor.x, neighbor.y] = 2;
+                                }
+
+                                _tileGrid[tileX, tileY] = 3; // 3 - actual place of the object, 2 - vicinity
+                            }
+
+                            if (_tileGrid[tileX, tileY] == 1 || _tileGrid[tileX, tileY] == 2)
+                                _freeTilesInRoom[x + y * MaxRoomCountPerDimension].Add(new Vector2Int(tileX, tileY));
+                        }
+                    }
+                }
+            }
+        }
+
+        private void GenerateMapSpawns()
+        {
+            Debug.Log(_startCoords + " " + _freeTilesInRoom.Count);
+            /*
+            for (var i = 0; i < 6; i++)
+            {
+                string output = "";
+                for (var j = 0; j < 6; j++)
+                {
+                    output += _freeTilesInRoom[i + j * 6].Count + " ";
+                }
+                Debug.Log(output);
+            }
+            */
+            for (var y = 0; y < MaxRoomCountPerDimension; y++)
+            {
+                for (var x = 0; x < MaxRoomCountPerDimension; x++)
+                {
+                    // spawn player
+                    if (_startCoords.x == x && _startCoords.y == y)
+                    {
+                        var roomIndex = x + y * MaxRoomCountPerDimension;
+                        var tileIndex = Random.Range(0, _freeTilesInRoom[roomIndex].Count);
+                        Debug.Log(roomIndex + " " + tileIndex + " | " + _freeTilesInRoom[roomIndex].Count());
+                        var playerSpawnTile = _freeTilesInRoom[roomIndex][tileIndex];
+                        _freeTilesInRoom[roomIndex][tileIndex] = _freeTilesInRoom[roomIndex][^1];
+                        _freeTilesInRoom[roomIndex].RemoveAt(_freeTilesInRoom[roomIndex].Count - 1);
+
+                        player.transform.position = new Vector2(playerSpawnTile.x * 2 + 0.5f, playerSpawnTile.y * 2);
+                    }
+                }
+            }
+        }
+
+        private List<Vector2Int> GetMatrix4Neighbors(int[,] grid, int x, int y, int value)
+        {
+            var result = new List<Vector2Int>();
+
+            if (x > 0 && grid[x - 1, y] == value) result.Add(new Vector2Int(x - 1, y));
+            if (x < grid.GetLength(0) - 1 && grid[x + 1, y] == value) result.Add(new Vector2Int(x + 1, y));
+            if (y > 0 && grid[x, y - 1] == value) result.Add(new Vector2Int(x, y - 1));
+            if (y < grid.GetLength(1) - 1 && grid[x, y + 1] == value) result.Add(new Vector2Int(x, y + 1));
+
+            return result;
+        }
+
+        private List<Vector2Int> GetMatrix8Neighbors(int[,] grid, int x, int y, int value)
+        {
+            var result = GetMatrix4Neighbors(grid, x, y, value);
+
+            if (x > 0 && y > 0 && grid[x - 1, y - 1] == value) result.Add(new Vector2Int(x - 1, y - 1));
+            if (x < grid.GetLength(0) - 1 && y > 0 && grid[x + 1, y - 1] == value)
+                result.Add(new Vector2Int(x + 1, y - 1));
+            if (x > 0 && y < grid.GetLength(1) - 1 && grid[x - 1, y + 1] == value)
+                result.Add(new Vector2Int(x - 1, y + 1));
+            if (x < grid.GetLength(0) - 1 && y < grid.GetLength(1) - 1 && grid[x + 1, y + 1] == value)
+                result.Add(new Vector2Int(x + 1, y + 1));
+
+            return result;
         }
     }
 }
