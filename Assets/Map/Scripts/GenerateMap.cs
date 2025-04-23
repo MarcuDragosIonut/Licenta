@@ -21,13 +21,13 @@ namespace Textures.Map.Scripts
         public int numberOfObstacles;
         public int borderLength;
 
-        private readonly int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
+        private int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
 
-        private readonly int[,] _tileGrid =
+        private int[,] _tileGrid =
             new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
                 MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding)];
 
-        private readonly List<List<Vector2Int>> _freeTilesInRoom = new List<List<Vector2Int>>();
+        private readonly List<List<Vector2Int>> _freeTilesInRoom = new();
         private Vector2Int _startCoords;
         private Vector2Int _endCoords;
         private int _roomCount;
@@ -44,6 +44,14 @@ namespace Textures.Map.Scripts
 
         public IEnumerator ChangeMap()
         {
+            
+            Vector2 portalPosition = _portal.transform.position;
+            Destroy(_portal);
+            _portal = Instantiate(portalPrefabs[1], portalPosition, Quaternion.identity);
+            _portal.transform.parent = transform;
+
+            yield return new WaitForSeconds(0.5f);
+            
             for (var x = 0; x < MaxRoomCountPerDimension; x++)
             {
                 for (var y = 0; y < MaxRoomCountPerDimension; y++)
@@ -51,13 +59,10 @@ namespace Textures.Map.Scripts
                     _freeTilesInRoom[x + y * MaxRoomCountPerDimension].Clear();
                 }
             }
-
-            Vector2 portalPosition = _portal.transform.position;
-            Destroy(_portal);
-            _portal = Instantiate(portalPrefabs[1], portalPosition, Quaternion.identity);
-            _portal.transform.parent = transform;
-
-            yield return new WaitForSeconds(0.5f);
+            
+            _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
+            _tileGrid = new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
+                MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding)];
 
             for (var i = transform.childCount - 1; i >= 0; i--)
             {
@@ -233,7 +238,7 @@ namespace Textures.Map.Scripts
                 if (_tileGrid[(int)currentPos.x, (int)currentPos.y] == 0)
                     Instantiate(groundPrefabs[Random.Range(0, groundPrefabs.Length)], currentPos * 2,
                         Quaternion.identity).transform.parent = transform;
-                _tileGrid[(int)currentPos.x, (int)currentPos.y] = 2;
+                _tileGrid[(int)currentPos.x, (int)currentPos.y] = 4;
                 counter++;
                 if (counter == directionTileLimit * 2 + 1) break;
                 if (counter == directionTileLimit)
@@ -249,7 +254,7 @@ namespace Textures.Map.Scripts
                             Quaternion.identity);
                         tile.transform.parent = transform;
                         //tile.GetComponent<Tilemap>().color = Color.blue;
-                        _tileGrid[(int)currentPos.x, (int)currentPos.y] = 1;
+                        _tileGrid[(int)currentPos.x, (int)currentPos.y] = 4;
                     }
                 }
 
@@ -369,7 +374,6 @@ namespace Textures.Map.Scripts
 
         private void GenerateMapSpawns()
         {
-            Debug.Log(_startCoords + " " + _freeTilesInRoom.Count);
             /*
             for (var i = 0; i < 6; i++)
             {
@@ -385,17 +389,29 @@ namespace Textures.Map.Scripts
             {
                 for (var x = 0; x < MaxRoomCountPerDimension; x++)
                 {
+                    var roomIndex = x + y * MaxRoomCountPerDimension;
                     // spawn player
                     if (_startCoords.x == x && _startCoords.y == y)
                     {
-                        var roomIndex = x + y * MaxRoomCountPerDimension;
                         var tileIndex = Random.Range(0, _freeTilesInRoom[roomIndex].Count);
-                        Debug.Log(roomIndex + " " + tileIndex + " | " + _freeTilesInRoom[roomIndex].Count());
+                        // Debug.Log(roomIndex + " " + tileIndex + " | " + _freeTilesInRoom[roomIndex].Count());
                         var playerSpawnTile = _freeTilesInRoom[roomIndex][tileIndex];
                         _freeTilesInRoom[roomIndex][tileIndex] = _freeTilesInRoom[roomIndex][^1];
                         _freeTilesInRoom[roomIndex].RemoveAt(_freeTilesInRoom[roomIndex].Count - 1);
 
                         player.transform.position = new Vector2(playerSpawnTile.x * 2 + 0.5f, playerSpawnTile.y * 2);
+                    }
+
+                    // spawn portal
+                    if (_endCoords.x == x && _endCoords.y == y)
+                    {
+                        var tileIndex = Random.Range(0, _freeTilesInRoom[roomIndex].Count);
+                        var portalSpawnTile = _freeTilesInRoom[roomIndex][tileIndex];
+                        _freeTilesInRoom[roomIndex][tileIndex] = _freeTilesInRoom[roomIndex][^1];
+                        _freeTilesInRoom[roomIndex].RemoveAt(_freeTilesInRoom[roomIndex].Count - 1);
+                        
+                        _portal = Instantiate(portalPrefabs[0], new Vector2(portalSpawnTile.x * 2,portalSpawnTile.y * 2), Quaternion.identity, transform);
+                        // _portal.transform.parent = transform;
                     }
                 }
             }
