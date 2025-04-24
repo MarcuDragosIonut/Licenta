@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Characters.Player.Scripts;
 using Items.Weapons.Attacks.Scripts;
 using Pathfinding;
+using Textures.Map.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -20,7 +21,6 @@ namespace Characters.Enemies.Scripts
         public float speed;
         public float attackRange;
         public int skillPoints;
-        public Transform player;
         public GameObject[] attackPool;
 
         private bool _effectsApplied = false;
@@ -32,25 +32,29 @@ namespace Characters.Enemies.Scripts
         private Animator _animator;
         private Rigidbody2D _rb;
         private PlayerController _playerController;
+        private Transform _player;
+        private GenerateMap _mapScript;
         private static readonly int IsMoving = Animator.StringToHash("isMoving");
 
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _animator = GetComponent<Animator>();
-            _playerController = player.GetComponent<PlayerController>();
+            _player = GameObject.Find("Player").transform;
+            _playerController = _player.GetComponent<PlayerController>();
             _aiPath = GetComponent<AIPath>();
             _aiDestinationSetter = GetComponent<AIDestinationSetter>();
-            _aiDestinationSetter.target = player;
+            _aiDestinationSetter.target = _player;
             _aiPath.maxSpeed = speed;
             _aiPath.enabled = false;
+            _mapScript = GameObject.Find("Map").GetComponent<GenerateMap>();
         }
 
         private void Update()
         {
             if (_playerInRange && !_aiPath.enabled)
             {
-                _aiDestinationSetter.target = player;
+                _aiDestinationSetter.target = _player;
                 _aiPath.enabled = true;
             }
 
@@ -64,14 +68,14 @@ namespace Characters.Enemies.Scripts
 
             if (_effectsApplied) return;
             
-            var distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            var hit = Physics2D.Raycast(transform.position, player.position - transform.position, distanceToPlayer, LayerMask.GetMask("Obstacle"));
+            var distanceToPlayer = Vector2.Distance(transform.position, _player.position);
+            var hit = Physics2D.Raycast(transform.position, _player.position - transform.position, distanceToPlayer, LayerMask.GetMask("Obstacle"));
             if (distanceToPlayer <= attackRange && !hit.collider)
             {
                 if (attackRange >= 1.1f)
                 {
                     _aiPath.canMove = false;
-                    Vector2 direction = player.position - transform.position;
+                    Vector2 direction = _player.position - transform.position;
                     var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                     transform.rotation = Quaternion.Euler(0f, 0f, angle - 90);
                 }
@@ -95,9 +99,9 @@ namespace Characters.Enemies.Scripts
                               attack.physicalDamage * physicalRes;
             Debug.Log("Damage: " + damageGiven);
             health -= damageGiven;
-            if (health <= 0)
+            if (health <= 0) // on death behaviour
             {
-                player.GetComponent<PlayerController>().OnEnemyKill(this);
+                _player.GetComponent<PlayerController>().OnEnemyKill(this);
                 Destroy(gameObject);
             }
             else
@@ -106,6 +110,11 @@ namespace Characters.Enemies.Scripts
                 if (attack.knockBack > 0) StartCoroutine(HandleKnockBack(attack));
                 if (attack.slowEffect > 0) StartCoroutine(HandleSlow(attack));
             }
+        }
+
+        private void OnDestroy()
+        {
+            _mapScript.DecrementEnemyCount();
         }
 
         private IEnumerator HandleKnockBack(AttackBehaviour attack)

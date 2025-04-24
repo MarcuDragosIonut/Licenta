@@ -109,9 +109,10 @@ namespace Characters.Player.Scripts
         public void OnInteract(InputAction.CallbackContext context)
         {
             Debug.Log("Pressed E");
-            if (_isTouchingPortal)
+            var mapScript = map.GetComponent<GenerateMap>();
+            if (_isTouchingPortal && mapScript.CanTeleportToNextMap())
             {
-                StartCoroutine(map.GetComponent<GenerateMap>().ChangeMap());
+                StartCoroutine(mapScript.ChangeMap());
                 return;
             }
 

@@ -18,7 +18,7 @@ namespace Textures.Map.Scripts
         public GameObject[] obstaclePrefabs;
         public GameObject[] borderPrefabs;
         public GameObject[] portalPrefabs;
-        public int numberOfObstacles;
+        public GameObject[] enemyPrefabs;
         public int borderLength;
 
         private int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
@@ -32,6 +32,9 @@ namespace Textures.Map.Scripts
         private Vector2Int _endCoords;
         private int _roomCount;
         private GameObject _portal;
+        private int _enemiesRemaining;
+        private int _totalEnemyCount;
+        private bool _isBossAlive;
 
         private const int MinRoomSize = 6;
         private const int MaxRoomSize = 9;
@@ -73,6 +76,16 @@ namespace Textures.Map.Scripts
             AstarPath.active.Scan();
         }
 
+        public bool CanTeleportToNextMap()
+        {
+            return !_isBossAlive && _enemiesRemaining <= _totalEnemyCount / 3;
+        }
+
+        public void DecrementEnemyCount()
+        {
+            _enemiesRemaining--;
+        }
+        
         private void Start()
         {
             for (var x = 0; x < MaxRoomCountPerDimension; x++)
@@ -101,7 +114,6 @@ namespace Textures.Map.Scripts
         {
             _roomCount = Random.Range(8, 14);
             int startX = Random.Range(0, MaxRoomCountPerDimension), startY = Random.Range(0, MaxRoomCountPerDimension);
-            // Debug.Log("start coords: " + startX + " " + startY + " nr rooms: " + _roomCount);
             _roomGrid[startX, startY] = 1;
             _startCoords = new Vector2Int(startX, startY);
             var roomCandidates = new List<Vector2Int>();
@@ -122,19 +134,7 @@ namespace Textures.Map.Scripts
                 roomCandidates.AddRange(roomNeighbors.Where(coords => !exploredCandidates.Contains(coords)));
                 exploredCandidates.UnionWith(roomNeighbors);
             }
-
-            /*
-            for (int i = _roomGrid.GetLength(1) - 1; i >= 0; i--)
-            {
-                var rez = "";
-                for (int j = 0; j < _roomGrid.GetLength(0); j++)
-                {
-                    rez += _roomGrid[j, i] + " ";
-                }
-
-                Debug.Log(rez);
-            }
-            */
+            
         }
 
         private void GenerateRooms()
@@ -374,49 +374,58 @@ namespace Textures.Map.Scripts
 
         private void GenerateMapSpawns()
         {
-            /*
-            for (var i = 0; i < 6; i++)
-            {
-                string output = "";
-                for (var j = 0; j < 6; j++)
-                {
-                    output += _freeTilesInRoom[i + j * 6].Count + " ";
-                }
-                Debug.Log(output);
-            }
-            */
+            var totalEnemyCount = 0;
             for (var y = 0; y < MaxRoomCountPerDimension; y++)
             {
                 for (var x = 0; x < MaxRoomCountPerDimension; x++)
                 {
                     var roomIndex = x + y * MaxRoomCountPerDimension;
-                    // spawn player
-                    if (_startCoords.x == x && _startCoords.y == y)
+                    
+                    if(_roomGrid[x, y] == 0) continue;
+                    
+                    if (_endCoords.x == x && _endCoords.y == y) // spawn portal
                     {
-                        var tileIndex = Random.Range(0, _freeTilesInRoom[roomIndex].Count);
-                        // Debug.Log(roomIndex + " " + tileIndex + " | " + _freeTilesInRoom[roomIndex].Count());
-                        var playerSpawnTile = _freeTilesInRoom[roomIndex][tileIndex];
-                        _freeTilesInRoom[roomIndex][tileIndex] = _freeTilesInRoom[roomIndex][^1];
-                        _freeTilesInRoom[roomIndex].RemoveAt(_freeTilesInRoom[roomIndex].Count - 1);
-
-                        player.transform.position = new Vector2(playerSpawnTile.x * 2 + 0.5f, playerSpawnTile.y * 2);
-                    }
-
-                    // spawn portal
-                    if (_endCoords.x == x && _endCoords.y == y)
-                    {
-                        var tileIndex = Random.Range(0, _freeTilesInRoom[roomIndex].Count);
-                        var portalSpawnTile = _freeTilesInRoom[roomIndex][tileIndex];
-                        _freeTilesInRoom[roomIndex][tileIndex] = _freeTilesInRoom[roomIndex][^1];
-                        _freeTilesInRoom[roomIndex].RemoveAt(_freeTilesInRoom[roomIndex].Count - 1);
+                        var portalSpawnTile = PopRandomFreeTile(roomIndex);
                         
                         _portal = Instantiate(portalPrefabs[0], new Vector2(portalSpawnTile.x * 2,portalSpawnTile.y * 2), Quaternion.identity, transform);
-                        // _portal.transform.parent = transform;
+                    }
+
+                    if (_startCoords.x == x && _startCoords.y == y) // spawn player
+                    {
+                        var playerSpawnTile = PopRandomFreeTile(roomIndex);
+                        
+                        player.transform.position = new Vector2(playerSpawnTile.x * 2 + 0.5f, playerSpawnTile.y * 2);
+                    }
+                    else // spawn enemies if it's not the starting room
+                    {
+                        var enemyCount = Random.Range(0, MaxRoomSize / 2 + MaxRoomSize % 2);
+                        if (enemyCount == 0) enemyCount = Random.Range(0.0f, 1.0f) > 0.5f ? 1 : 0; // making it rare for empty rooms to exist
+
+                        totalEnemyCount += enemyCount;
+
+                        while (enemyCount-- > 0)
+                        {
+                            var enemySpawnTile = PopRandomFreeTile(roomIndex);
+                            Instantiate(enemyPrefabs[Random.Range(0, enemyPrefabs.Length)],
+                                new Vector2(enemySpawnTile.x * 2, enemySpawnTile.y * 2), Quaternion.identity, transform);
+                        }
+                        
                     }
                 }
             }
+
+            _totalEnemyCount = _enemiesRemaining = totalEnemyCount;
         }
 
+        private Vector2Int PopRandomFreeTile(int roomIndex)
+        {
+            var tileIndex = Random.Range(0, _freeTilesInRoom[roomIndex].Count);
+            var chosenTile = _freeTilesInRoom[roomIndex][tileIndex];
+            _freeTilesInRoom[roomIndex][tileIndex] = _freeTilesInRoom[roomIndex][^1];
+            _freeTilesInRoom[roomIndex].RemoveAt(_freeTilesInRoom[roomIndex].Count - 1);
+            return chosenTile;
+        }
+        
         private List<Vector2Int> GetMatrix4Neighbors(int[,] grid, int x, int y, int value)
         {
             var result = new List<Vector2Int>();

@@ -3772,7 +3772,9 @@ MonoBehaviour:
   portalPrefabs:
   - {fileID: 991935050376799283, guid: f907fc4610af6174ca8201ec31b2c257, type: 3}
   - {fileID: 5990299558789751896, guid: 8d04787a6fa573649aee75e3fde368cd, type: 3}
-  numberOfObstacles: 3
+  enemyPrefabs:
+  - {fileID: 4989642712089695019, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
+  - {fileID: 453823887050104527, guid: 528a8e03299254a47aaf427066403134, type: 3}
   borderLength: 6
 --- !u!1 &696679989
 GameObject:
