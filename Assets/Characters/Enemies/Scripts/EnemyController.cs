@@ -106,7 +106,6 @@ namespace Characters.Enemies.Scripts
             }
             else
             {
-                Debug.Log("Knckbck " + attack.knockBack);
                 if (attack.knockBack > 0) StartCoroutine(HandleKnockBack(attack));
                 if (attack.slowEffect > 0) StartCoroutine(HandleSlow(attack));
             }

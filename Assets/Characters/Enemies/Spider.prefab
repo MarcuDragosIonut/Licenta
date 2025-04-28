@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4989642712089695019
+--- !u!1 &5094608658621716252
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,44 +8,45 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1736518828417722217}
-  - component: {fileID: 4232400562594151892}
-  - component: {fileID: 7064051390381475991}
-  - component: {fileID: 6352294516084198457}
-  - component: {fileID: 9050045159903254859}
-  - component: {fileID: 5338938837447186538}
-  - component: {fileID: 5762108089715133171}
-  - component: {fileID: 2541371500816719648}
-  - component: {fileID: 4255181804634264398}
+  - component: {fileID: 6609964720268635870}
+  - component: {fileID: 174845866212029445}
+  - component: {fileID: 1425052616846462582}
+  - component: {fileID: 7976716665206873860}
+  - component: {fileID: 4797748142999227614}
+  - component: {fileID: 4640309436720801775}
+  - component: {fileID: 966440731850241398}
+  - component: {fileID: 5469747170075044127}
+  - component: {fileID: 9065559555648504296}
+  - component: {fileID: 7233720581298722440}
   m_Layer: 9
-  m_Name: DarkMage
+  m_Name: Spider
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1736518828417722217
+--- !u!4 &6609964720268635870
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &4232400562594151892
+--- !u!212 &174845866212029445
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -80,7 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 75280c7b83ab9194d8cfabfc7838a14a, type: 3}
+  m_Sprite: {fileID: -628508930, guid: 82ad5cbdba22e094f94d838ca4ed3175, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -91,13 +92,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7064051390381475991
+--- !u!114 &1425052616846462582
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
@@ -119,13 +120,13 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: -1
---- !u!114 &6352294516084198457
+--- !u!114 &7976716665206873860
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
@@ -156,41 +157,40 @@ MonoBehaviour:
   rotationSpeed: 360
   slowdownDistance: 0.4
   pickNextWaypointDist: 0.3
-  endReachedDistance: 1
+  endReachedDistance: 0.2
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
   whenCloseToDestination: 0
   constrainInsideGraph: 0
---- !u!114 &9050045159903254859
+--- !u!114 &4797748142999227614
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 941aa2be0a1fea34a8f311ff88433cf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 16
-  arcaneRes: 0.5
-  fireRes: 1
+  health: 10
+  arcaneRes: 1
+  fireRes: 1.5
   waterRes: 1
-  physicalRes: 1.5
-  speed: 0.9
-  attackRange: 4.5
+  physicalRes: 1
+  speed: 3
+  attackRange: 1.05
   skillPoints: 3
   attackPool:
-  - {fileID: 3063630211845618037, guid: 6cf01b5dcd83ee8479ec7aba05f12809, type: 3}
-  - {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}
---- !u!114 &5338938837447186538
+  - {fileID: 7098282952803141574, guid: a5bc0593a1f530447ae747c022374c85, type: 3}
+--- !u!114 &4640309436720801775
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
@@ -198,13 +198,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1
   target: {fileID: 0}
---- !u!58 &5762108089715133171
+--- !u!58 &966440731850241398
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -233,20 +233,20 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 8
---- !u!50 &2541371500816719648
+--- !u!50 &5469747170075044127
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 5
-  m_LinearDrag: 10
+  m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -260,13 +260,13 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!60 &4255181804634264398
+--- !u!60 &9065559555648504296
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4989642712089695019}
+  m_GameObject: {fileID: 5094608658621716252}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -296,7 +296,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.96, y: 0.96}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -317,3 +317,24 @@ PolygonCollider2D:
       - {x: 0.40489388, y: 0.1442887}
       - {x: 0.23321676, y: 0.31905508}
   m_UseDelaunayMesh: 0
+--- !u!95 &7233720581298722440
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5094608658621716252}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: af97bd71d4a843c45870789b1ab1e956, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
