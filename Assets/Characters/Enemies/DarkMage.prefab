@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5762108089715133171}
   - component: {fileID: 2541371500816719648}
   - component: {fileID: 4255181804634264398}
+  - component: {fileID: 2637021218560421754}
   m_Layer: 9
   m_Name: DarkMage
   m_TagString: Enemy
@@ -317,3 +318,19 @@ PolygonCollider2D:
       - {x: 0.40489388, y: 0.1442887}
       - {x: 0.23321676, y: 0.31905508}
   m_UseDelaunayMesh: 0
+--- !u!114 &2637021218560421754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4989642712089695019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 183748dd497aa473a98ff0cd8cb67fc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  uniqueID: 684241148790066962
+  updateError: 1
+  checkTime: 0.2

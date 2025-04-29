@@ -23,11 +23,12 @@ namespace Characters.Enemies.Scripts
         public int skillPoints;
         public GameObject[] attackPool;
 
-        private bool _effectsApplied = false;
+        private bool _effectsApplied;
         private bool _canAttack = true;
         private AIPath _aiPath;
         private AIDestinationSetter _aiDestinationSetter;
-        private bool _playerInRange = false;
+        private bool _playerInRange;
+        private bool _isStunned;
         private float _attackCooldown = -Mathf.Infinity;
         private Animator _animator;
         private Rigidbody2D _rb;
@@ -35,6 +36,8 @@ namespace Characters.Enemies.Scripts
         private Transform _player;
         private GenerateMap _mapScript;
         private static readonly int IsMoving = Animator.StringToHash("isMoving");
+        private static readonly int IsAttacking = Animator.StringToHash("isAttacking");
+        private static readonly int AnimatorAttack = Animator.StringToHash("attack");
 
         private void Awake()
         {
@@ -44,7 +47,7 @@ namespace Characters.Enemies.Scripts
             _playerController = _player.GetComponent<PlayerController>();
             _aiPath = GetComponent<AIPath>();
             _aiDestinationSetter = GetComponent<AIDestinationSetter>();
-            _aiDestinationSetter.target = _player;
+            if(!transform.CompareTag("Boss"))_aiDestinationSetter.target = _player;
             _aiPath.maxSpeed = speed;
             _aiPath.enabled = false;
             _mapScript = GameObject.Find("Map").GetComponent<GenerateMap>();
@@ -52,26 +55,30 @@ namespace Characters.Enemies.Scripts
 
         private void Update()
         {
-            if (_playerInRange && !_aiPath.enabled)
+            if (!transform.CompareTag("Boss") && _playerInRange && !_aiPath.enabled)
             {
                 _aiDestinationSetter.target = _player;
                 _aiPath.enabled = true;
             }
 
-            if (!_playerInRange && _aiPath.enabled)
+            if (!transform.CompareTag("Boss") && !_playerInRange && _aiPath.enabled)
             {
                 _aiPath.enabled = false;
                 _aiDestinationSetter.target = null;
             }
 
-            if(_animator) _animator.SetBool(IsMoving, _aiPath.velocity.magnitude > 0.01f);
+            if (_animator && _animator)
+            {
+                _animator.SetBool(IsMoving, _aiPath.velocity.magnitude > 0.01f);
+            }
 
             if (_effectsApplied) return;
             
             var distanceToPlayer = Vector2.Distance(transform.position, _player.position);
-            var hit = Physics2D.Raycast(transform.position, _player.position - transform.position, distanceToPlayer, LayerMask.GetMask("Obstacle"));
-            if (distanceToPlayer <= attackRange && !hit.collider)
+            if (distanceToPlayer <= attackRange)
             {
+                var hit = Physics2D.CircleCast(transform.position,0.3f,_player.position - transform.position, distanceToPlayer, LayerMask.GetMask("Obstacle"));
+                if (hit.collider) return;
                 if (attackRange >= 1.1f)
                 {
                     _aiPath.canMove = false;
@@ -87,7 +94,7 @@ namespace Characters.Enemies.Scripts
             }
             else
             {
-                if (!_aiPath.canMove) _aiPath.canMove = true;
+                if (!_aiPath.canMove && !_isStunned && !transform.CompareTag("Boss")) _aiPath.canMove = true;
             }
         }
 
@@ -125,7 +132,7 @@ namespace Characters.Enemies.Scripts
             Debug.Log("KnockBack " + _rb.velocity);
             yield return new WaitForSeconds(0.15f);
             _rb.velocity = Vector2.zero;
-            _aiPath.canMove = true;
+            if(transform.CompareTag("Boss"))_aiPath.canMove = true;
             _effectsApplied = false;
         }
 
@@ -142,7 +149,11 @@ namespace Characters.Enemies.Scripts
             _canAttack = false;
             var attackStagger = 0.0f;
             var chosenAttack = attackPool[Random.Range(0, attackPool.Length)].GetComponent<AttackBehaviour>();
-            
+            if (_animator)
+            {
+                _animator.SetBool(IsAttacking, true);
+                _animator.SetTrigger(AnimatorAttack);
+            }
             if (attackRange < 1.1f)
             {
                 chosenAttack.Use(_playerController);
@@ -155,11 +166,16 @@ namespace Characters.Enemies.Scripts
             }
 
             _attackCooldown = Time.time + chosenAttack.cooldown;
-            //StartCoroutine(Stun(attackStagger));
-
+            // StartCoroutine(Stun(attackStagger));
+            if(_animator) _animator.SetBool(IsAttacking, false);
             _canAttack = true;
         }
 
+        private IEnumerator AttackWindup(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+        }
+        
         private IEnumerator Stun(float duration)
         {
             _aiPath.canMove = false;

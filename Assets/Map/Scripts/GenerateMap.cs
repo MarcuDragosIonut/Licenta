@@ -19,6 +19,7 @@ namespace Textures.Map.Scripts
         public GameObject[] borderPrefabs;
         public GameObject[] portalPrefabs;
         public GameObject[] enemyPrefabs;
+        public GameObject[] bossPrefabs;
         public int borderLength;
 
         private int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
@@ -398,6 +399,14 @@ namespace Textures.Map.Scripts
                     }
                     else // spawn enemies if it's not the starting room
                     {
+                        // spawn boss if conditions are met
+                        if (_endCoords.x == x && _endCoords.y == y)
+                        {
+                            var bossSpawnTile = PopRandomFreeTile(roomIndex);
+                            Instantiate(bossPrefabs[Random.Range(0, bossPrefabs.Length)],
+                                new Vector2(bossSpawnTile.x * 2, bossSpawnTile.y * 2), Quaternion.identity, transform);
+                        }
+                        
                         var enemyCount = Random.Range(0, MaxRoomSize / 2 + MaxRoomSize % 2);
                         if (enemyCount == 0) enemyCount = Random.Range(0.0f, 1.0f) > 0.5f ? 1 : 0; // making it rare for empty rooms to exist
 

@@ -238,7 +238,7 @@ namespace Characters.Player.Scripts
             _handAnimator.SetBool(IsAttacking, true);
             _wandSpriteRenderer.sprite = _wandWeaponScript.activeSprite;
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.4f);
 
             _lastAttackTime = Time.time;
 
@@ -320,7 +320,9 @@ namespace Characters.Player.Scripts
             _currentCooldown = cooldown;
             currentAttack = null;
             _attackBehaviour = null;
-            yield return new WaitForSeconds(1.5f);
+            
+            // for smoother animation
+            yield return new WaitForSeconds(0.1f);
 
             _wandSpriteRenderer.sprite = _wandWeaponScript.idleSprite;
             _handAnimator.SetBool(IsAttacking, false);
