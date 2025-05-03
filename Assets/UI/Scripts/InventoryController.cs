@@ -27,7 +27,6 @@ namespace UI.Scripts
         private EquipmentSlotsController _slotsController;
         private Transform _inventoryGrid;
         private Transform _equipmentGrid;
-        private GameObject _lootImage;
         private GameObject _lootSlot;
 
 
@@ -35,9 +34,7 @@ namespace UI.Scripts
         {
             _inventoryGrid = transform.Find("InventoryGrid");
             _equipmentGrid = transform.Find("EquipmentGrid");
-            _lootImage = transform.Find("PickUpBackground").gameObject;
-            _lootSlot = transform.Find("LootSlot").gameObject;
-            _lootImage.SetActive(false);
+            _lootSlot = transform.Find("PickUpBackground").gameObject;
             _lootSlot.SetActive(false);
             _slotsController = equipmentSlotsElement.GetComponent<EquipmentSlotsController>();
         }
@@ -59,16 +56,14 @@ namespace UI.Scripts
         public void HandleLoot(GameObject lootObject)
         {
             _lootObject = lootObject;
-            _lootSlot.GetComponent<Image>().sprite = lootObject.GetComponent<SpriteRenderer>().sprite;
+            _lootSlot.transform.GetChild(0).GetComponent<Image>().sprite = lootObject.GetComponent<SpriteRenderer>().sprite;
             Debug.Log(_lootObject);
-            _lootImage.SetActive(true);
             _lootSlot.SetActive(true);
         }
 
         public void CancelLootAction()
         {
             _lootObject = null;
-            _lootImage.SetActive(false);
             _lootSlot.SetActive(false);
         }
 
@@ -152,7 +147,6 @@ namespace UI.Scripts
             inventorySlots[currentSlotIndex] = _lootObject;
             _inventoryGrid.GetChild(currentSlotIndex).GetComponent<Image>().sprite =
                 _lootObject.GetComponent<SpriteRenderer>().sprite;
-            _lootImage.gameObject.SetActive(false);
             _lootSlot.gameObject.SetActive(false);
             _playerScript.CancelLootPickUp();
             _lootObject = null;

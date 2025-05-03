@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 6879902786642047445}
   - component: {fileID: 5929310975124220434}
   - component: {fileID: 5653163294313072722}
-  m_Layer: 0
-  m_Name: ClosedChest
+  m_Layer: 8
+  m_Name: Level1Chest1
   m_TagString: Loot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -100,8 +100,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openedSprite: {fileID: -895868251, guid: 1c86aa9bf6597a341b1b970aa14ce1fa, type: 3}
-  lootTable: []
-  chances: []
+  lootTable:
+  - {fileID: 8654021598636168940, guid: 8ba7e719a2286714b8f803196f23187a, type: 3}
+  - {fileID: 8654021598636168940, guid: c2d2b31e9722ae8449d843a8e2497bb7, type: 3}
+  - {fileID: 8654021598636168940, guid: 1690ec1f69ef011459a3012939029215, type: 3}
+  chances:
+  - 0.33
+  - 0.33
+  - 0.34
   isOpened: 0
 --- !u!50 &5929310975124220434
 Rigidbody2D:

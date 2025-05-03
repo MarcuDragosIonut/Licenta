@@ -302,11 +302,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1884410740}
+  m_Father: {fileID: 1531936706}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 422.5, y: 313.9}
+  m_AnchoredPosition: {x: 40, y: 40}
   m_SizeDelta: {x: 35, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &29134148
@@ -3772,6 +3772,9 @@ MonoBehaviour:
   portalPrefabs:
   - {fileID: 991935050376799283, guid: f907fc4610af6174ca8201ec31b2c257, type: 3}
   - {fileID: 5990299558789751896, guid: 8d04787a6fa573649aee75e3fde368cd, type: 3}
+  chestPrefabs:
+  - {fileID: 2494879266130641288, guid: cd92159d26fcb1749a292dd8b65892e0, type: 3}
+  - {fileID: 2494879266130641288, guid: 4ccb6acac0429094793a52bece27094e, type: 3}
   enemyPrefabs:
   - {fileID: 4989642712089695019, guid: 91589470bf50a3b4bb4ac781f74a26c5, type: 3}
   - {fileID: 453823887050104527, guid: 528a8e03299254a47aaf427066403134, type: 3}
@@ -5869,7 +5872,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1531936706
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5881,13 +5884,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 29134147}
   m_Father: {fileID: 1884410740}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.00001049, y: 64.9}
-  m_SizeDelta: {x: 78.4434, y: 79.4232}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1531936707
 MonoBehaviour:
@@ -6707,7 +6711,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1531936706}
-  - {fileID: 29134147}
   - {fileID: 2133093381}
   - {fileID: 340960599}
   - {fileID: 1958840182}
@@ -7529,6 +7532,14 @@ PrefabInstance:
       propertyPath: playerStatsElement
       value: 
       objectReference: {fileID: 1444806175}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnInventoryButtonPress
+      objectReference: {fileID: 0}
     - target: {fileID: 4748993435965488094, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

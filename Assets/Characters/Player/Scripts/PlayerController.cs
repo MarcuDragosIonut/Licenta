@@ -86,8 +86,16 @@ namespace Characters.Player.Scripts
             InvokeRepeating(nameof(ManaRegain), 0, 0.5f);
         }
 
-        public void ChangeInventoryVisibility()
+        public void OnInventoryButtonPress(InputAction.CallbackContext context)
         {
+            if(!context.performed) return;
+            ChangeInventoryVisibility();
+        }
+        
+        private void ChangeInventoryVisibility()
+        {
+            
+            Debug.Log("Pressed I");
             if (_isPickingUpLoot)
             {
                 inventory.GetComponent<InventoryController>().CancelLootAction();
@@ -108,7 +116,10 @@ namespace Characters.Player.Scripts
 
         public void OnInteract(InputAction.CallbackContext context)
         {
+            if (!context.performed) return;
+            
             Debug.Log("Pressed E");
+            
             var mapScript = map.GetComponent<GenerateMap>();
             if (_isTouchingPortal && mapScript.CanTeleportToNextMap())
             {
@@ -116,6 +127,11 @@ namespace Characters.Player.Scripts
                 return;
             }
 
+            if (_inventoryOpened)
+            {
+                ChangeInventoryVisibility();
+            }
+            
             if (_collidingLoot != null && !_isPickingUpLoot && !_collidingLoot.GetComponent<ChestScript>().isOpened)
             {
                 _isPickingUpLoot = true;
