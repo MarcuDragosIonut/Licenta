@@ -29,26 +29,36 @@ namespace Characters.Player.Scripts
         public GameObject playerHand;
         public GameObject equippedWand;
         public GameObject currentAttack;
-        public GameObject inventory;
         public GameObject[] equippedSpells = new GameObject[3];
+        public GameObject inventory;
+        public GameObject skillTab;
         public GameObject playerStatsElement;
 
+        // stats variables
+        private int _skillPoints = 0;
+        private float _extraAttack = 0.0f;
+        private float _manaRegen = 0.1f;
         private ArmorScript _equippedBodyArmor;
         private ArmorScript _equippedHeadArmor;
-        private int _skillPoints = 0;
+        
+        // player state variables
         private bool _inventoryOpened = false;
+        private bool _skillTabOpened = false;
         private bool _isPickingUpLoot = false;
         private bool _isAttacking = false;
         private bool _isTouchingPortal = false;
         private GameObject _collidingLoot;
-        private float _manaRecovery = 0.1f;
+        
+        // attack variables
         private float _currentCooldown = 0.0f;
         private float _lastAttackTime = -Mathf.Infinity;
         private readonly List<ElementType> _preparedCombo = new();
         private readonly List<bool> _pressedKeys = new() { false, false, false };
         private SpellComboController _spellComboController;
-
+        
+        
         private InventoryController _inventoryController;
+        private SkillsController _skillsController;
         private PlayerStatsController _statsController;
 
         private Rigidbody2D _rb;
@@ -74,6 +84,7 @@ namespace Characters.Player.Scripts
             _handAnimator = playerHand.GetComponent<Animator>();
             _statsController = playerStatsElement.GetComponent<PlayerStatsController>();
             _inventoryController = inventory.GetComponent<InventoryController>();
+            _skillsController = skillTab.GetComponent<SkillsController>();
             _spellComboController = GetComponent<SpellComboController>();
             EquipWeapon(_inventoryController.equippedWand);
             EquipArmor(_inventoryController.headEquipment);
@@ -91,11 +102,17 @@ namespace Characters.Player.Scripts
             if(!context.performed) return;
             ChangeInventoryVisibility();
         }
+
+        public void OnSkillTabButtonPress(InputAction.CallbackContext context)
+        {
+            if(!context.performed) return;
+            
+            skillTab.SetActive(!_skillTabOpened);
+            _skillTabOpened = !_skillTabOpened;
+        }
         
         private void ChangeInventoryVisibility()
         {
-            
-            Debug.Log("Pressed I");
             if (_isPickingUpLoot)
             {
                 inventory.GetComponent<InventoryController>().CancelLootAction();
@@ -149,7 +166,7 @@ namespace Characters.Player.Scripts
 
         public void OnLook(InputAction.CallbackContext context)
         {
-            if (_inventoryOpened) return;
+            if (_inventoryOpened || _skillTabOpened) return;
 
             Vector2 mousePos = context.ReadValue<Vector2>();
             var direction = GetMouseDirection(mousePos);
@@ -160,7 +177,7 @@ namespace Characters.Player.Scripts
 
         public void OnAttack(InputAction.CallbackContext context)
         {
-            if (!context.performed || _inventoryOpened || currentAttack == null) return;
+            if (!context.performed || _inventoryOpened || _skillTabOpened|| currentAttack == null) return;
 
             if (IsReadyToAttack())
             {
@@ -222,9 +239,26 @@ namespace Characters.Player.Scripts
             _wandSpriteRenderer = equippedWand.GetComponent<SpriteRenderer>();
         }
 
+        public int GetSkillPoints()
+        {
+            return _skillPoints;
+        }
+        
+        public void UpgradeStat(int skillPointsSpent, SkillsController.StatType statType, float bonusValue)
+        {
+            _skillPoints -= skillPointsSpent;
+            
+            if (statType == SkillsController.StatType.Attack) _extraAttack += bonusValue;
+            if (statType == SkillsController.StatType.Health) maxHealth += bonusValue;
+            if (statType == SkillsController.StatType.Mana) maxMana += bonusValue;
+            if (statType == SkillsController.StatType.ManaRegen) _manaRegen += bonusValue;
+            
+            _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+        }
+        
         public void PrepareAttack(InputAction.CallbackContext context)
         {
-            if (_inventoryOpened) return;
+            if (_inventoryOpened || _skillTabOpened) return;
 
             var keyPressed = context.control.name;
             var selectedSpellSlot = int.Parse(keyPressed);
@@ -260,25 +294,29 @@ namespace Characters.Player.Scripts
 
             var weapon = equippedWand.GetComponent<WeaponScript>();
 
-            var arcaneMultiplier = 1.0f + (
-                (_equippedHeadArmor != null ? _equippedHeadArmor.arcaneMultiplier - 1.0f : 0) +
-                (_equippedBodyArmor != null ? _equippedBodyArmor.arcaneMultiplier - 1.0f : 0) +
-                weapon.arcaneMultiplier - 1.0f);
+            var arcaneMultiplier = 1.0f +
+                (_equippedHeadArmor != null ? _equippedHeadArmor.arcaneMultiplier: 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.arcaneMultiplier: 0) +
+                weapon.arcaneMultiplier +
+                _extraAttack;
 
-            var fireMultiplier = 1.0f + (
-                (_equippedHeadArmor != null ? _equippedHeadArmor.fireMultiplier - 1.0f : 0) +
-                (_equippedBodyArmor != null ? _equippedBodyArmor.fireMultiplier - 1.0f : 0) +
-                weapon.fireMultiplier - 1.0f);
+            var fireMultiplier = 1.0f + 
+                (_equippedHeadArmor != null ? _equippedHeadArmor.fireMultiplier: 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.fireMultiplier: 0) +
+                weapon.fireMultiplier + 
+                _extraAttack;
 
-            var waterMultiplier = 1.0f + (
-                (_equippedHeadArmor != null ? _equippedHeadArmor.waterMultiplier - 1.0f : 0) +
-                (_equippedBodyArmor != null ? _equippedBodyArmor.waterMultiplier - 1.0f : 0) +
-                weapon.waterMultiplier - 1.0f);
+            var waterMultiplier = 1.0f + 
+                (_equippedHeadArmor != null ? _equippedHeadArmor.waterMultiplier : 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.waterMultiplier: 0) +
+                weapon.waterMultiplier +
+                _extraAttack;
 
-            var physicalMultiplier = 1.0f + (
-                (_equippedHeadArmor != null ? _equippedHeadArmor.physicalMultiplier - 1.0f : 0) +
-                (_equippedBodyArmor != null ? _equippedBodyArmor.physicalMultiplier - 1.0f : 0) +
-                weapon.physicalMultiplier - 1.0f);
+            var physicalMultiplier = 1.0f + 
+                (_equippedHeadArmor != null ? _equippedHeadArmor.physicalMultiplier: 0) +
+                (_equippedBodyArmor != null ? _equippedBodyArmor.physicalMultiplier: 0) +
+                weapon.physicalMultiplier +
+                _extraAttack;
 
             float cooldown = 0.0f, manaCost = 0.0f;
 
@@ -419,7 +457,7 @@ namespace Characters.Player.Scripts
         {
             if (mana >= maxMana) return;
             
-            mana += Math.Min(_manaRecovery, maxMana - mana);
+            mana += Math.Min(_manaRegen, maxMana - mana);
             _statsController.UpdateStats(health, maxHealth, mana, maxMana);
         }
 

@@ -66,7 +66,7 @@ namespace Items.Weapons.Attacks.Scripts
         {
             switch (_playerAttack)
             {
-                case true when other.gameObject.CompareTag("Enemy"):
+                case true when other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("Boss"):
                     other.gameObject.GetComponent<EnemyController>().TakeDamage(this);
                     break;
                 case false when other.gameObject.CompareTag("Player"):

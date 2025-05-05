@@ -116,15 +116,17 @@ namespace Textures.Map.Scripts
 
         private void GenerateMapLayout()
         {
+            // select starting room
             _roomCount = Random.Range(8, 14);
             int startX = Random.Range(0, MaxRoomCountPerDimension), startY = Random.Range(0, MaxRoomCountPerDimension);
             _roomGrid[startX, startY] = 1;
             _startCoords = new Vector2Int(startX, startY);
-            var roomCandidates = new List<Vector2Int>();
+            
+            var roomCandidates = new List<Vector2Int>(); // which rooms could be generated
             roomCandidates.AddRange(GetMatrix4Neighbors(_roomGrid, startX, startY, 0));
-            var exploredCandidates = new HashSet<Vector2Int>(roomCandidates);
-            var endRoomIndex = Random.Range(0, _roomCount);
-            for (var roomIndex = 0; roomIndex < _roomCount; roomIndex++)
+            var exploredCandidates = new HashSet<Vector2Int>(roomCandidates); // rooms that were generated
+            var endRoomIndex = Random.Range(1, _roomCount);
+            for (var roomIndex = 1; roomIndex < _roomCount; roomIndex++)
             {
                 var chosenRoomIndex = Random.Range(0, roomCandidates.Count);
                 var newRoomCoords = roomCandidates[chosenRoomIndex];
@@ -132,6 +134,7 @@ namespace Textures.Map.Scripts
                 _roomGrid[newRoomCoords.x, newRoomCoords.y] = 1;
                 if (roomIndex == endRoomIndex) _endCoords = new Vector2Int(newRoomCoords.x, newRoomCoords.y);
 
+                
                 roomCandidates[chosenRoomIndex] = roomCandidates[^1];
                 roomCandidates.RemoveAt(roomCandidates.Count - 1);
                 var roomNeighbors = GetMatrix4Neighbors(_roomGrid, newRoomCoords.x, newRoomCoords.y, 0);
@@ -147,13 +150,12 @@ namespace Textures.Map.Scripts
                 for (var j = 0; j < MaxRoomCountPerDimension; j++)
                 {
                     if (_roomGrid[i, j] > 0)
-                        GenerateRoom(i * (MaxRoomSize + RoomPadding), j * (MaxRoomSize + RoomPadding),
-                            _roomGrid[i, j] == 1, _roomGrid[i, j] == 3);
+                        GenerateRoom(i * (MaxRoomSize + RoomPadding), j * (MaxRoomSize + RoomPadding));
                 }
             }
         }
 
-        private void GenerateRoom(int lowX, int lowY, bool isStart = false, bool isEnd = false)
+        private void GenerateRoom(int lowX, int lowY)
         {
             float xSeed = Random.Range(0.0f, 1000.0f), ySeed = Random.Range(0.0f, 1000.0f);
             var roomLength = Random.Range(MinRoomSize, MaxRoomSize + 1);
@@ -185,7 +187,8 @@ namespace Textures.Map.Scripts
             var traversedRooms = new HashSet<Vector2Int>();
             var currentCoords = _startCoords;
             var corridorCandidates = new List<Tuple<Vector2Int, Vector2Int>>();
-            while (true)
+            // generate main corridors, create connected graph
+            while (traversedRooms.Count < _roomCount - 1)
             {
                 traversedRooms.Add(currentCoords);
                 foreach (var neighbor in GetMatrix4Neighbors(_roomGrid, currentCoords.x, currentCoords.y, 1))
@@ -210,7 +213,7 @@ namespace Textures.Map.Scripts
                 GenerateCorridor(chosenPath);
                 // Debug.Log("used room: " + currentCoords + " used path: " + chosenPath);
                 currentCoords = chosenPath.Item2; // destination becomes new current node
-                if (traversedRooms.Count == _roomCount) break;
+                // if (traversedRooms.Count == _roomCount) break;
             }
         }
 
@@ -379,7 +382,7 @@ namespace Textures.Map.Scripts
         {
             var totalEnemyCount = 0;
             var numberOfChests = _mapIndex % 3 == 0 ? _roomCount / 2 : _roomCount / 3;
-            int[] chestsPerRoom = new int[_roomCount];
+            var chestsPerRoom = new int[_roomCount];
             for (var i = 0; i < numberOfChests; i++)
             {
                 var chosenIndex = Random.Range(0, _roomCount);
@@ -388,14 +391,15 @@ namespace Textures.Map.Scripts
             }
 
             var existingRoomIndex = 0;
+            Debug.Log("room count: " + _roomCount);
             for (var y = 0; y < MaxRoomCountPerDimension; y++)
             {
                 for (var x = 0; x < MaxRoomCountPerDimension; x++)
                 {
                     var roomIndex = x + y * MaxRoomCountPerDimension;
-                    
-                    if (_roomGrid[x, y] == 0) continue;
 
+                    if (_roomGrid[x, y] == 0) continue;
+                    
                     while (chestsPerRoom[existingRoomIndex]-- > 0)
                     {
                         var chestSpawnTile = PopRandomFreeTile(roomIndex);
@@ -443,6 +447,7 @@ namespace Textures.Map.Scripts
                         }
 
                         existingRoomIndex++;
+                        Debug.Log("room index: " + existingRoomIndex);
                     }
                 }
             }

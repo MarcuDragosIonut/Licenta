@@ -515,8 +515,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1988913403599105876}
         m_TargetAssemblyTypeName: Characters.Player.Scripts.PlayerController, Assembly-CSharp
-        m_MethodName: ChangeInventoryVisibility
-        m_Mode: 1
+        m_MethodName: OnInventoryButtonPress
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -543,6 +543,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 6b06c43f-fe50-47c9-8b70-bfa85671c4dd
     m_ActionName: Player/ModifySpells[/Keyboard/1,/Keyboard/2,/Keyboard/3]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1988913403599105876}
+        m_TargetAssemblyTypeName: Characters.Player.Scripts.PlayerController, Assembly-CSharp
+        m_MethodName: OnSkillTabButtonPress
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 7544baa8-9958-45a1-a2b9-12f92176a2c9
+    m_ActionName: Player/OpenSkillsTab[/Keyboard/g]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -571,11 +587,12 @@ MonoBehaviour:
   playerHand: {fileID: 8611195764875441635}
   equippedWand: {fileID: 0}
   currentAttack: {fileID: 0}
-  inventory: {fileID: 0}
   equippedSpells:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  inventory: {fileID: 0}
+  skillTab: {fileID: 0}
   playerStatsElement: {fileID: 0}
 --- !u!114 &5601829793084442880
 MonoBehaviour:

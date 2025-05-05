@@ -51,6 +51,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "OpenSkillsTab",
+                    "type": "Button",
+                    "id": "7544baa8-9958-45a1-a2b9-12f92176a2c9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ModifySpells",
                     "type": "Button",
                     "id": "6b06c43f-fe50-47c9-8b70-bfa85671c4dd",
@@ -162,6 +171,17 @@
                 },
                 {
                     "name": "",
+                    "id": "d364534f-a540-4815-9838-7820d62dca73",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenInventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "566d2310-4312-41a4-bff6-f82fcfe0660d",
                     "path": "<Keyboard>/1",
                     "interactions": "",
@@ -190,6 +210,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ModifySpells",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d44ed9f-492c-4e7d-82b0-7da0e5c68788",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenSkillsTab",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
