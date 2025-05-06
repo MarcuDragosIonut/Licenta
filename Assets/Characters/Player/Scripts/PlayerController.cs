@@ -63,6 +63,7 @@ namespace Characters.Player.Scripts
 
         private Rigidbody2D _rb;
         private Camera _mainCamera;
+        private Animator _headAnimator;
         private Animator _bodyAnimator;
         private Animator _handAnimator;
         private Sprite _baseHeadSprite;
@@ -80,6 +81,7 @@ namespace Characters.Player.Scripts
             _baseHeadSprite = playerHead.GetComponent<SpriteRenderer>().sprite;
             _rb = GetComponent<Rigidbody2D>();
             _mainCamera = Camera.main;
+            _headAnimator = playerHead.GetComponent<Animator>();
             _bodyAnimator = playerBody.GetComponent<Animator>();
             _handAnimator = playerHand.GetComponent<Animator>();
             _statsController = playerStatsElement.GetComponent<PlayerStatsController>();
@@ -125,8 +127,9 @@ namespace Characters.Player.Scripts
 
         public void OnMove(InputAction.CallbackContext context)
         {
-            Vector2 moveInput = context.ReadValue<Vector2>();
+            var moveInput = context.ReadValue<Vector2>();
             _velocity = moveInput * speed;
+            _headAnimator.SetBool(IsMoving, _velocity.magnitude > 0.01f);
             _bodyAnimator.SetBool(IsMoving, _velocity.magnitude > 0.01f);
             _handAnimator.SetBool(IsMoving, _velocity.magnitude > 0.01f);
         }
