@@ -90,6 +90,13 @@ namespace Textures.Map.Scripts
             _enemiesRemaining--;
         }
 
+        public List<Vector2Int> GetFreeTilesInRoom(int x, int y)
+        {
+            int roomX = x / (2 * (MaxRoomSize + RoomPadding)), roomY = y /(2 * (MaxRoomSize + RoomPadding));
+            var roomIndex = roomX + roomY * MaxRoomCountPerDimension;
+            return _freeTilesInRoom[roomIndex];
+        }
+        
         private void Start()
         {
             for (var x = 0; x < MaxRoomCountPerDimension; x++)
@@ -104,6 +111,7 @@ namespace Textures.Map.Scripts
             AstarPath.active.Scan();
         }
 
+        
         private void CreateMap()
         {
             GenerateMapLayout();
@@ -391,7 +399,7 @@ namespace Textures.Map.Scripts
             }
 
             var existingRoomIndex = 0;
-            Debug.Log("room count: " + _roomCount);
+            // Debug.Log("room count: " + _roomCount);
             for (var y = 0; y < MaxRoomCountPerDimension; y++)
             {
                 for (var x = 0; x < MaxRoomCountPerDimension; x++)
@@ -447,7 +455,7 @@ namespace Textures.Map.Scripts
                         }
 
                         existingRoomIndex++;
-                        Debug.Log("room index: " + existingRoomIndex);
+                        // Debug.Log("room index: " + existingRoomIndex);
                     }
                 }
             }

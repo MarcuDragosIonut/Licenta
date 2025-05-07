@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 7261057327417779284}
   - component: {fileID: 1860182118558809935}
   - component: {fileID: -5413203465920785430}
+  - component: {fileID: -1746623208999830572}
   m_Layer: 9
   m_Name: PurpleWizard
   m_TagString: Boss
@@ -218,8 +219,8 @@ MonoBehaviour:
   attackRange: 12
   skillPoints: 15
   attackPool:
-  - {fileID: 3063630211845618037, guid: 6cf01b5dcd83ee8479ec7aba05f12809, type: 3}
-  - {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}
+  - {fileID: 7098282952803141574, guid: 43d0bec536e74ea43aa79ce5060109e2, type: 3}
+  - {fileID: 7098282952803141574, guid: c7de7eae07c909545bdd1f442f75ea08, type: 3}
 --- !u!114 &8854546271509656434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,6 +391,18 @@ MonoBehaviour:
   uniqueID: 7232507005735780163
   updateError: 1
   checkTime: 0.2
+--- !u!114 &-1746623208999830572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5100905083939593838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d88a531636cad4cbf00a5ef5d62d8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5116102560710717078
 GameObject:
   m_ObjectHideFlags: 0

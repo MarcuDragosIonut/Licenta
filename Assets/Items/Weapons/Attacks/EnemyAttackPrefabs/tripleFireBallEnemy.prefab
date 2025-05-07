@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7098282952803141574
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8554909884519650266}
+  - component: {fileID: -9091184919173959129}
+  m_Layer: 10
+  m_Name: tripleFireBallEnemy
+  m_TagString: EnemyAttack
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8554909884519650266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7098282952803141574}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-9091184919173959129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7098282952803141574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 572593bf69ef5644488cb745ed50a7e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackParameters:
+  - {x: 0, y: 0}
+  - {x: -10, y: 0}
+  - {x: 10, y: 0}
+  attackPrefabs:
+  - {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}
+  - {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}
+  - {fileID: 7098282952803141574, guid: b6c9ee69c049ffe4c9bda59553465096, type: 3}

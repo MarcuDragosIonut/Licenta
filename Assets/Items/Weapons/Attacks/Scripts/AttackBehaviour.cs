@@ -42,8 +42,8 @@ namespace Items.Weapons.Attacks.Scripts
             attackScript.SetPlayerAttack(isPlayerAttack);
 
             attack.GetComponent<Rigidbody2D>().velocity = direction * travelSpeed;
-            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            attack.transform.rotation = Quaternion.Euler(0, 0, angle - 90);
+            var spriteAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            attack.transform.rotation = Quaternion.Euler(0, 0, spriteAngle - 90);
         }
 
         public void Use(PlayerController playerController)
@@ -52,7 +52,7 @@ namespace Items.Weapons.Attacks.Scripts
 
             playerController.TakeDamage(this);
         }
-        
+
         private void SetDamage(float arcane, float fire, float water, float physical)
         {
             arcaneDamage = arcane;
@@ -73,10 +73,10 @@ namespace Items.Weapons.Attacks.Scripts
                     other.gameObject.GetComponent<PlayerController>().TakeDamage(this);
                     break;
             }
-            
+
             Destroy(gameObject);
         }
-        
+
         private void SetPlayerAttack(bool val)
         {
             _playerAttack = val;

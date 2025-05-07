@@ -67,6 +67,14 @@ namespace Characters.Enemies.Scripts
                 _aiDestinationSetter.target = null;
             }
 
+            if (!transform.CompareTag("Boss") && !_playerInRange && !_aiPath.enabled)
+            {
+                _rb.velocity = Vector2.zero;
+                _rb.angularVelocity = 0f;
+            }
+
+            if (transform.CompareTag("Boss") && !_playerInRange) _rb.angularVelocity = 0;
+            
             if (_animator && _animator)
             {
                 _animator.SetBool(IsMoving, _aiPath.velocity.magnitude > 0.01f);
@@ -81,7 +89,7 @@ namespace Characters.Enemies.Scripts
                 if (hit.collider) return;
                 if (attackRange >= 1.1f)
                 {
-                    _aiPath.canMove = false;
+                    if(transform.CompareTag("Boss"))_aiPath.canMove = false;
                     Vector2 direction = _player.position - transform.position;
                     var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                     transform.rotation = Quaternion.Euler(0f, 0f, angle - 90);
@@ -148,7 +156,10 @@ namespace Characters.Enemies.Scripts
         {
             _canAttack = false;
             var attackStagger = 0.0f;
-            var chosenAttack = attackPool[Random.Range(0, attackPool.Length)].GetComponent<AttackBehaviour>();
+            var chosenAttackPrefab = attackPool[Random.Range(0, attackPool.Length)];
+            AttackBehaviour chosenAttackBehaviour = chosenAttackPrefab.GetComponent<AttackBehaviour>();
+            MultipleAttack chosenMultipleAttack = null;
+            if (chosenAttackBehaviour == null) chosenMultipleAttack = chosenAttackPrefab.GetComponent<MultipleAttack>();
             if (_animator)
             {
                 _animator.SetBool(IsAttacking, true);
@@ -156,16 +167,21 @@ namespace Characters.Enemies.Scripts
             }
             if (attackRange < 1.1f)
             {
-                chosenAttack.Use(_playerController);
-                attackStagger = chosenAttack.attackStagger;
+                chosenAttackBehaviour.Use(_playerController);
+                // attackStagger = chosenAttackBehaviour.attackStagger;
             }
             else
             {
-                chosenAttack.Use(isPlayerAttack: false, transform.up, transform.position + transform.up * 1f);
-                attackStagger = chosenAttack.attackStagger;
+                if(chosenAttackBehaviour) chosenAttackBehaviour.Use(isPlayerAttack: false, transform.up, transform.position + transform.up * 1f);
+                else if (chosenMultipleAttack)
+                {
+                    chosenMultipleAttack.Use(false, transform.up, transform.position + transform.up * 1f);
+                    chosenAttackBehaviour = chosenMultipleAttack.attackPrefabs[0].GetComponent<AttackBehaviour>();
+                }
+                // attackStagger = chosenAttackBehaviour.attackStagger;
             }
 
-            _attackCooldown = Time.time + chosenAttack.cooldown;
+            _attackCooldown = Time.time + chosenAttackBehaviour.cooldown;
             // StartCoroutine(Stun(attackStagger));
             if(_animator) _animator.SetBool(IsAttacking, false);
             _canAttack = true;
