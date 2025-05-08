@@ -134,6 +134,14 @@ namespace Characters.Player.Scripts
             _handAnimator.SetBool(IsMoving, _velocity.magnitude > 0.01f);
         }
 
+        public void DebugGame(InputAction.CallbackContext context)
+        {
+            if (!context.performed) return;
+
+            var mapScript = map.GetComponent<GenerateMap>();
+            StartCoroutine(mapScript.ChangeMap());
+        }
+        
         public void OnInteract(InputAction.CallbackContext context)
         {
             if (!context.performed) return;

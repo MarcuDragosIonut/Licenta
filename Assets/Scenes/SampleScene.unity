@@ -10492,6 +10492,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4748993435965488094, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
   m_PrefabInstance: {fileID: 7776394883658866876}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5350304909965886848 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1988913403599105876, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+  m_PrefabInstance: {fileID: 7776394883658866876}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4923500268111549124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce977d6367e5c8340a97a5ab1c6c5b31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7776394883658866876
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10516,6 +10527,46 @@ PrefabInstance:
       propertyPath: playerStatsElement
       value: 
       objectReference: {fileID: 1444806175}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_ActionId
+      value: 5750e639-0455-45ed-98a9-1f6d44a8b11a
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_ActionName
+      value: Player/Debug[/Keyboard/p]
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5350304909965886848}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: DebugGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Characters.Player.Scripts.PlayerController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954003534112407673, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 4748993435965488094, guid: aa6cb25ea420dfb4dade8ec42421f0d4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -67,6 +67,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Debug",
+                    "type": "Button",
+                    "id": "5750e639-0455-45ed-98a9-1f6d44a8b11a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -221,6 +230,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OpenSkillsTab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d6fba5f4-b69b-473c-b0e1-e6589cf07d38",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Debug",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
