@@ -4806,12 +4806,18 @@ MonoBehaviour:
   player: {fileID: 4923500268111549124}
   groundPrefabs:
   - {fileID: 8578789758758333971, guid: 8edcec1779445c04d8ca42353bede341, type: 3}
+  - {fileID: 8578789758758333971, guid: 8edcec1779445c04d8ca42353bede341, type: 3}
+  - {fileID: 8578789758758333971, guid: 8edcec1779445c04d8ca42353bede341, type: 3}
+  - {fileID: 374297081268418926, guid: 2885c1199edb643428dfbac7e6d7f0cb, type: 3}
+  - {fileID: 8578789758758333971, guid: 8edcec1779445c04d8ca42353bede341, type: 3}
   obstaclePrefabs:
   - {fileID: 60410672362307564, guid: 1e0aa2e24c3037f4c9693c4876dec1c6, type: 3}
+  - {fileID: 73237724511205321, guid: e168989adc6923f47b1a25d07103d640, type: 3}
   borderPrefabs:
   - {fileID: 6279632653489423293, guid: 64c2185e9bec5a54e87e26036f5dda55, type: 3}
   - {fileID: 1688086016238397011, guid: 8f69e97e673b8704983a369854b92921, type: 3}
   - {fileID: 402811023106381334, guid: 457e7312cc809aa458b6017e1a2ae703, type: 3}
+  - {fileID: 94168822903765977, guid: 1027e39f67e7e514a87804ccd781d0e0, type: 3}
   portalPrefabs:
   - {fileID: 991935050376799283, guid: f907fc4610af6174ca8201ec31b2c257, type: 3}
   - {fileID: 5990299558789751896, guid: 8d04787a6fa573649aee75e3fde368cd, type: 3}
@@ -4824,7 +4830,7 @@ MonoBehaviour:
   - {fileID: 5094608658621716252, guid: 78e9eb034b2d5f44eae8725e614eeb07, type: 3}
   bossPrefabs:
   - {fileID: 5100905083939593838, guid: b5162dc994415174291a630830967d7e, type: 3}
-  borderLength: 6
+  borderLength: 3
 --- !u!1 &696679989
 GameObject:
   m_ObjectHideFlags: 0

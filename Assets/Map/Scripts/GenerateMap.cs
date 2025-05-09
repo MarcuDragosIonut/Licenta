@@ -24,6 +24,7 @@ namespace Textures.Map.Scripts
         public int borderLength;
 
         private int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
+        private readonly Vector2Int[][] _roomSizes = new Vector2Int[MaxRoomCountPerDimension][];
 
         private int[,] _tileGrid =
             new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
@@ -92,15 +93,16 @@ namespace Textures.Map.Scripts
 
         public List<Vector2Int> GetFreeTilesInRoom(int x, int y)
         {
-            int roomX = x / (2 * (MaxRoomSize + RoomPadding)), roomY = y /(2 * (MaxRoomSize + RoomPadding));
+            int roomX = x / (2 * (MaxRoomSize + RoomPadding)), roomY = y / (2 * (MaxRoomSize + RoomPadding));
             var roomIndex = roomX + roomY * MaxRoomCountPerDimension;
             return _freeTilesInRoom[roomIndex];
         }
-        
+
         private void Start()
         {
             for (var x = 0; x < MaxRoomCountPerDimension; x++)
             {
+                _roomSizes[x] = new Vector2Int[MaxRoomCountPerDimension];
                 for (var y = 0; y < MaxRoomCountPerDimension; y++)
                 {
                     _freeTilesInRoom.Add(new List<Vector2Int>());
@@ -111,7 +113,7 @@ namespace Textures.Map.Scripts
             AstarPath.active.Scan();
         }
 
-        
+
         private void CreateMap()
         {
             GenerateMapLayout();
@@ -129,7 +131,7 @@ namespace Textures.Map.Scripts
             int startX = Random.Range(0, MaxRoomCountPerDimension), startY = Random.Range(0, MaxRoomCountPerDimension);
             _roomGrid[startX, startY] = 1;
             _startCoords = new Vector2Int(startX, startY);
-            
+
             var roomCandidates = new List<Vector2Int>(); // which rooms could be generated
             roomCandidates.AddRange(GetMatrix4Neighbors(_roomGrid, startX, startY, 0));
             var exploredCandidates = new HashSet<Vector2Int>(roomCandidates); // rooms that were generated
@@ -142,7 +144,7 @@ namespace Textures.Map.Scripts
                 _roomGrid[newRoomCoords.x, newRoomCoords.y] = 1;
                 if (roomIndex == endRoomIndex) _endCoords = new Vector2Int(newRoomCoords.x, newRoomCoords.y);
 
-                
+
                 roomCandidates[chosenRoomIndex] = roomCandidates[^1];
                 roomCandidates.RemoveAt(roomCandidates.Count - 1);
                 var roomNeighbors = GetMatrix4Neighbors(_roomGrid, newRoomCoords.x, newRoomCoords.y, 0);
@@ -170,6 +172,10 @@ namespace Textures.Map.Scripts
             var lengthOffset = (MaxRoomSize - roomLength) / 2;
             var roomWidth = Random.Range(MinRoomSize, MaxRoomSize + 1);
             var widthOffset = (MaxRoomSize - roomWidth) / 2;
+            // Offsets are for putting the room in the middle of its tile
+            _roomSizes[lowX / (MaxRoomSize + RoomPadding)][lowY / (MaxRoomSize + RoomPadding)] =
+                new Vector2Int(roomWidth, roomLength);
+            // Room sizes will be needed for corridor generation
             for (var y = 0; y < roomLength; y++)
             {
                 for (var x = 0; x < roomWidth; x++)
@@ -191,7 +197,7 @@ namespace Textures.Map.Scripts
 
         private void GenerateCorridors()
         {
-            var unusedPaths = new HashSet<Tuple<Vector2Int, Vector2Int>>();
+            var unusedPaths = new List<Tuple<Vector2Int, Vector2Int>>();
             var traversedRooms = new HashSet<Vector2Int>();
             var currentCoords = _startCoords;
             var corridorCandidates = new List<Tuple<Vector2Int, Vector2Int>>();
@@ -214,6 +220,7 @@ namespace Textures.Map.Scripts
                     chosenPath = corridorCandidates[chosenIndex];
                     corridorCandidates[chosenIndex] = corridorCandidates[^1];
                     corridorCandidates.RemoveAt(corridorCandidates.Count - 1);
+                    // delete every possible corridor that leads to the already connected room
                     if (!traversedRooms.Contains(chosenPath.Item2)) break;
                     unusedPaths.Add(chosenPath);
                 }
@@ -223,39 +230,112 @@ namespace Textures.Map.Scripts
                 currentCoords = chosenPath.Item2; // destination becomes new current node
                 // if (traversedRooms.Count == _roomCount) break;
             }
+
+            unusedPaths.AddRange(corridorCandidates); // add unused corridors at the end
+            var loopCountChances = new[] { 0f, 0.2f, 0.5f, 0.85f, 1.0f };
+            var loopRandomValue = Random.Range(0.0f, 1.0f);
+            for (var loopCount = 0; loopCount < loopCountChances.Length - 1; loopCount++)
+            {
+                if (loopRandomValue < loopCountChances[loopCount + 1])
+                {
+                    Debug.Log(loopCount + " " + unusedPaths.Count);
+                    for (var i = 0; i < loopCount && unusedPaths.Count > 0; i++)
+                    {
+                        var chosenIndex = Random.Range(0, unusedPaths.Count);
+                        GenerateCorridor(unusedPaths[chosenIndex]);
+                        unusedPaths[chosenIndex] = unusedPaths[^1];
+                        unusedPaths.RemoveAt(unusedPaths.Count - 1);
+                    }
+
+                    break;
+                }
+            }
         }
 
         private void GenerateCorridor(Tuple<Vector2Int, Vector2Int> path)
         {
-            const int minOffset = (MaxRoomSize - MinRoomSize) / 2;
-            var firstRoomCorridorPos = Random.Range(minOffset, minOffset + MinRoomSize);
-            var secondRoomCorridorPos = Random.Range(minOffset, minOffset + MinRoomSize);
             var firstRoomPos = path.Item1;
             var secondRoomPos = path.Item2;
+            int room1Width = _roomSizes[firstRoomPos.x][firstRoomPos.y].x,
+                room1Length = _roomSizes[firstRoomPos.x][firstRoomPos.y].y;
+            int room2Width = _roomSizes[secondRoomPos.x][secondRoomPos.y].x,
+                room2Length = _roomSizes[secondRoomPos.x][secondRoomPos.y].y;
+
             var direction = new Vector2Int(
                 secondRoomPos.x -
                 firstRoomPos.x, // rooms are always adjacent, result will be the direction the corridor moves in
                 secondRoomPos.y - firstRoomPos.y);
-            var currentPos = new Vector2(
-                firstRoomPos.x * (MaxRoomSize + RoomPadding) +
-                (direction.x == 1 ? MinRoomSize : 0) +
-                (direction.x == -1 ? MaxRoomSize - MinRoomSize : 0) +
-                (direction.y != 0 ? firstRoomCorridorPos : 0),
-                firstRoomPos.y * (MaxRoomSize + RoomPadding) +
-                (direction.y == 1 ? MinRoomSize : 0) +
-                (direction.y == -1 ? MaxRoomSize - MinRoomSize : 0) +
-                (direction.x != 0 ? firstRoomCorridorPos : 0)
-            );
-            int counter = 0, directionTileLimit = MaxRoomSize + RoomPadding / 2 - MinRoomSize;
+            // currentPos will be one tile behind the edge of the room
+
+            var firstRoomRangeStart = direction.x != 0 ? (MaxRoomSize - room1Width) / 2 + 2 : (MaxRoomSize - room1Length) / 2 + 2;
+            var firstRoomRangeEnd = direction.x != 0 ? (MaxRoomSize - room1Width) / 2 + room1Width - 2 : (MaxRoomSize - room1Length) / 2 + room1Length - 2;
+            var secondRoomRangeStart = direction.x != 0 ? (MaxRoomSize - room2Width) / 2 + 2 : (MaxRoomSize - room2Length) / 2 + 2;
+            var secondRoomRangeEnd = direction.x != 0 ? (MaxRoomSize - room2Width) / 2 + room2Width - 2 : (MaxRoomSize - room2Length) / 2 + room2Length - 2;
+
+            var firstRoomCorridorPos = Random.Range(firstRoomRangeStart, firstRoomRangeEnd);
+            var secondRoomCorridorPos = Random.Range(secondRoomRangeStart, secondRoomRangeEnd);
+
+            var currentPos = new Vector2(0, 0);
+            var distanceIntoFirstRoom = 0;
+            var distanceIntoSecondRoom = 0;
+            switch (direction.x)
+            {
+                case -1:
+                    currentPos =
+                        new Vector2(
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.x + (MaxRoomSize - room1Width) / 2 + 2,
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.y + firstRoomCorridorPos);
+                    distanceIntoFirstRoom = (MaxRoomSize - room1Width) / 2;
+                    distanceIntoSecondRoom = MaxRoomSize - room2Width - (MaxRoomSize - room2Width) / 2;
+                    break;
+                case 1:
+                    currentPos =
+                        new Vector2(
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.x + room1Width + (MaxRoomSize - room1Width) / 2 - 2,
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.y + firstRoomCorridorPos);
+                    distanceIntoFirstRoom = MaxRoomSize - room1Width - (MaxRoomSize - room1Width) / 2;
+                    distanceIntoSecondRoom = (MaxRoomSize - room2Width) / 2;
+                    break;
+            }
+
+            switch (direction.y)
+            {
+                case -1:
+                    currentPos =
+                        new Vector2(
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.x + firstRoomCorridorPos,
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.y + (MaxRoomSize - room1Length) / 2 + 2);
+                    distanceIntoFirstRoom = (MaxRoomSize - room1Length) / 2;
+                    distanceIntoSecondRoom = MaxRoomSize - room2Length - (MaxRoomSize - room2Length) / 2;
+                    break;
+                case 1:
+                    currentPos =
+                        new Vector2(
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.x + firstRoomCorridorPos,
+                            (MaxRoomSize + RoomPadding) * firstRoomPos.y + room1Length +
+                            (MaxRoomSize - room1Length) / 2 - 2);
+                    distanceIntoFirstRoom = MaxRoomSize - room1Length - (MaxRoomSize - room1Length) / 2;
+                    distanceIntoSecondRoom = (MaxRoomSize - room2Length) / 2;
+                    break;
+            }
+
+            var paddingSeparationPoint = Random.Range(1, RoomPadding);
+            int counter = 0,
+                firstTileLimit = distanceIntoFirstRoom + paddingSeparationPoint + 2,
+                secondTileLimit = distanceIntoSecondRoom + RoomPadding - paddingSeparationPoint + 2;
             while (true)
             {
                 if (_tileGrid[(int)currentPos.x, (int)currentPos.y] == 0)
-                    Instantiate(groundPrefabs[Random.Range(0, groundPrefabs.Length)], currentPos * 2,
-                        Quaternion.identity).transform.parent = transform;
+                {
+                    var newTile = Instantiate(groundPrefabs[Random.Range(0, groundPrefabs.Length)], currentPos * 2,
+                        Quaternion.identity, transform);
+                    // newTile.GetComponent<Tilemap>().color = counter < firstTileLimit ? Color.blue : Color.red;
+                }
+
                 _tileGrid[(int)currentPos.x, (int)currentPos.y] = 4;
                 counter++;
-                if (counter == directionTileLimit * 2 + 1) break;
-                if (counter == directionTileLimit)
+                if (counter == firstTileLimit + secondTileLimit + 1) break;
+                if (counter == firstTileLimit)
                 {
                     var corridorDiff = secondRoomCorridorPos - firstRoomCorridorPos;
                     var bridgeDirection = new Vector2Int(
@@ -267,7 +347,7 @@ namespace Textures.Map.Scripts
                         var tile = Instantiate(groundPrefabs[Random.Range(0, groundPrefabs.Length)], currentPos * 2,
                             Quaternion.identity);
                         tile.transform.parent = transform;
-                        //tile.GetComponent<Tilemap>().color = Color.blue;
+                        // tile.GetComponent<Tilemap>().color = Color.magenta;
                         _tileGrid[(int)currentPos.x, (int)currentPos.y] = 4;
                     }
                 }
@@ -284,6 +364,7 @@ namespace Textures.Map.Scripts
                 for (var y = 0; y < tileGridLength; y++)
                 {
                     int roomGridX = x / (MaxRoomSize + RoomPadding), roomGridY = y / (MaxRoomSize + RoomPadding);
+
                     // if a room exists on this tile or in its vicinity create border
                     if ((_roomGrid[roomGridX, roomGridY] != 0 || (_roomGrid[roomGridX, roomGridY] == 0 &&
                                                                   GetMatrix8Neighbors(_roomGrid, roomGridX, roomGridY,
@@ -302,7 +383,8 @@ namespace Textures.Map.Scripts
                     if (_tileGrid[x, y] == 1 && GetMatrix4Neighbors(_tileGrid, x, y, 0).Count == 4) _tileGrid[x, y] = 0;
                     if (_tileGrid[x, y] == 0)
                     {
-                        InstantiateBorder(x * 2, y * 2, GetMatrix4Neighbors(_tileGrid, x, y, 1).Count > 0 ? 1 : 0);
+                        // InstantiateBorder(x * 2, y * 2, GetMatrix4Neighbors(_tileGrid, x, y, 1).Count > 0 ? 1 : 0);
+                        InstantiateBorder(x * 2, y * 2, (roomGridX + roomGridY) % 2 == 0 ? 1 : 0);
                     }
                 }
             }
@@ -338,7 +420,8 @@ namespace Textures.Map.Scripts
 
         private void InstantiateBorder(float x, float y, int objectIndex)
         {
-            var borderPrefabIndex = objectIndex == 1 ? 0 : Random.Range(0, borderPrefabs.Length);
+            // var borderPrefabIndex = objectIndex == 1 ? 0 : 1;
+            var borderPrefabIndex = Random.Range(0, borderPrefabs.Length);
             GameObject borderObject = Instantiate(borderPrefabs[borderPrefabIndex],
                 new Vector2(x, y), Quaternion.identity);
             borderObject.transform.parent = transform;
@@ -407,14 +490,16 @@ namespace Textures.Map.Scripts
                     var roomIndex = x + y * MaxRoomCountPerDimension;
 
                     if (_roomGrid[x, y] == 0) continue;
-                    
+
                     while (chestsPerRoom[existingRoomIndex]-- > 0)
                     {
                         var chestSpawnTile = PopRandomFreeTile(roomIndex);
 
-                        Instantiate(chestPrefabs[Random.Range(0, chestPrefabs.Length)], new Vector2(chestSpawnTile.x * 2 - Random.Range(0,2), chestSpawnTile.y * 2 + Random.Range(0,2)),Quaternion.identity, transform);
+                        Instantiate(chestPrefabs[Random.Range(0, chestPrefabs.Length)],
+                            new Vector2(chestSpawnTile.x * 2 - Random.Range(0, 2),
+                                chestSpawnTile.y * 2 + Random.Range(0, 2)), Quaternion.identity, transform);
                     }
-                    
+
                     if (_endCoords.x == x && _endCoords.y == y) // spawn portal
                     {
                         var portalSpawnTile = PopRandomFreeTile(roomIndex);
