@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters.Enemies.Scripts;
-using Items.Armors.Scripts;
+using Items.Armor.Scripts;
 using Items.Weapons.Attacks.Scripts;
 using Items.Weapons.Scripts;
 using Map.Scripts;
@@ -409,18 +409,18 @@ namespace Characters.Player.Scripts
 
             if (_equippedBodyArmor != null)
             {
-                arcaneRes -= 1.0f - _equippedBodyArmor.arcaneReductionMultiplier;
-                fireRes -= 1.0f - _equippedBodyArmor.fireReductionMultiplier;
-                waterRes -= 1.0f - _equippedBodyArmor.waterReductionMultiplier;
-                physRes -= 1.0f - _equippedBodyArmor.physicalReductionMultiplier;
+                arcaneRes += _equippedBodyArmor.arcaneReductionMultiplier;
+                fireRes += _equippedBodyArmor.fireReductionMultiplier;
+                waterRes += _equippedBodyArmor.waterReductionMultiplier;
+                physRes += _equippedBodyArmor.physicalReductionMultiplier;
             }
 
             if (_equippedHeadArmor != null)
             {
-                arcaneRes -= 1.0f - _equippedHeadArmor.arcaneReductionMultiplier;
-                fireRes -= 1.0f - _equippedHeadArmor.fireReductionMultiplier;
-                waterRes -= 1.0f - _equippedHeadArmor.waterReductionMultiplier;
-                physRes -= 1.0f - _equippedHeadArmor.physicalReductionMultiplier;
+                arcaneRes += _equippedHeadArmor.arcaneReductionMultiplier;
+                fireRes += _equippedHeadArmor.fireReductionMultiplier;
+                waterRes += _equippedHeadArmor.waterReductionMultiplier;
+                physRes += _equippedHeadArmor.physicalReductionMultiplier;
             }
 
             return attack.arcaneDamage * arcaneRes + attack.fireDamage * fireRes + attack.waterDamage * waterRes +

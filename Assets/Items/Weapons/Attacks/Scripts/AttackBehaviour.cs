@@ -1,7 +1,7 @@
 using System;
 using Characters.Enemies.Scripts;
 using Characters.Player.Scripts;
-using Items.Armors.Scripts;
+using Items.Armor.Scripts;
 using Items.Weapons.Scripts;
 using UnityEngine;
 

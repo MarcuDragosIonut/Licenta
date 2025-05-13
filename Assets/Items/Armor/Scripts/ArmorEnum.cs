@@ -1,4 +1,4 @@
-namespace Items.Armors.Scripts
+namespace Items.Armor.Scripts
 {
     public enum ArmorType
     {

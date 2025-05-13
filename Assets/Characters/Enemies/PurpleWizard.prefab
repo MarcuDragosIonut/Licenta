@@ -212,7 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 45
   arcaneRes: 0.3
-  fireRes: 1.2
+  fireRes: 1
   waterRes: 1
   physicalRes: 1.3
   speed: 2

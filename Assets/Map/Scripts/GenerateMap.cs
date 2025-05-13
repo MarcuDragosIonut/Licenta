@@ -23,12 +23,12 @@ namespace Textures.Map.Scripts
         public GameObject[] bossPrefabs;
         public int borderLength;
 
-        private int[,] _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
-        private readonly Vector2Int[][] _roomSizes = new Vector2Int[MaxRoomCountPerDimension][];
+        private int[,] _roomGrid = new int[MaxRoomsPerDimension, MaxRoomsPerDimension];
+        private readonly Vector2Int[][] _roomSizes = new Vector2Int[MaxRoomsPerDimension][];
 
         private int[,] _tileGrid =
-            new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
-                MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding)];
+            new int[MaxRoomsPerDimension * (MaxRoomSize + RoomPadding),
+                MaxRoomsPerDimension * (MaxRoomSize + RoomPadding)];
 
         private readonly List<List<Vector2Int>> _freeTilesInRoom = new();
         private Vector2Int _startCoords;
@@ -41,7 +41,7 @@ namespace Textures.Map.Scripts
 
         private const int MinRoomSize = 6;
         private const int MaxRoomSize = 9;
-        private const int MaxRoomCountPerDimension = 6;
+        private const int MaxRoomsPerDimension = 6;
         private const int RoomPadding = 4;
         private const float NoiseScale = 0.8f;
         private const float RoomShapeThreshold = 0.45f;
@@ -59,17 +59,17 @@ namespace Textures.Map.Scripts
 
             yield return new WaitForSeconds(0.5f);
 
-            for (var x = 0; x < MaxRoomCountPerDimension; x++)
+            for (var x = 0; x < MaxRoomsPerDimension; x++)
             {
-                for (var y = 0; y < MaxRoomCountPerDimension; y++)
+                for (var y = 0; y < MaxRoomsPerDimension; y++)
                 {
-                    _freeTilesInRoom[x + y * MaxRoomCountPerDimension].Clear();
+                    _freeTilesInRoom[x + y * MaxRoomsPerDimension].Clear();
                 }
             }
 
-            _roomGrid = new int[MaxRoomCountPerDimension, MaxRoomCountPerDimension];
-            _tileGrid = new int[MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding),
-                MaxRoomCountPerDimension * (MaxRoomSize + RoomPadding)];
+            _roomGrid = new int[MaxRoomsPerDimension, MaxRoomsPerDimension];
+            _tileGrid = new int[MaxRoomsPerDimension * (MaxRoomSize + RoomPadding),
+                MaxRoomsPerDimension * (MaxRoomSize + RoomPadding)];
 
             for (var i = transform.childCount - 1; i >= 0; i--)
             {
@@ -94,16 +94,16 @@ namespace Textures.Map.Scripts
         public List<Vector2Int> GetFreeTilesInRoom(int x, int y)
         {
             int roomX = x / (2 * (MaxRoomSize + RoomPadding)), roomY = y / (2 * (MaxRoomSize + RoomPadding));
-            var roomIndex = roomX + roomY * MaxRoomCountPerDimension;
+            var roomIndex = roomX + roomY * MaxRoomsPerDimension;
             return _freeTilesInRoom[roomIndex];
         }
 
         private void Start()
         {
-            for (var x = 0; x < MaxRoomCountPerDimension; x++)
+            for (var x = 0; x < MaxRoomsPerDimension; x++)
             {
-                _roomSizes[x] = new Vector2Int[MaxRoomCountPerDimension];
-                for (var y = 0; y < MaxRoomCountPerDimension; y++)
+                _roomSizes[x] = new Vector2Int[MaxRoomsPerDimension];
+                for (var y = 0; y < MaxRoomsPerDimension; y++)
                 {
                     _freeTilesInRoom.Add(new List<Vector2Int>());
                 }
@@ -121,14 +121,14 @@ namespace Textures.Map.Scripts
             GenerateCorridors();
             GenerateUnwalkableTiles();
             GenerateObstacles();
-            GenerateMapSpawns();
+            GenerateEntities();
         }
 
         private void GenerateMapLayout()
         {
             // select starting room
             _roomCount = Random.Range(8, 14);
-            int startX = Random.Range(0, MaxRoomCountPerDimension), startY = Random.Range(0, MaxRoomCountPerDimension);
+            int startX = Random.Range(0, MaxRoomsPerDimension), startY = Random.Range(0, MaxRoomsPerDimension);
             _roomGrid[startX, startY] = 1;
             _startCoords = new Vector2Int(startX, startY);
 
@@ -155,9 +155,9 @@ namespace Textures.Map.Scripts
 
         private void GenerateRooms()
         {
-            for (var i = 0; i < MaxRoomCountPerDimension; i++)
+            for (var i = 0; i < MaxRoomsPerDimension; i++)
             {
-                for (var j = 0; j < MaxRoomCountPerDimension; j++)
+                for (var j = 0; j < MaxRoomsPerDimension; j++)
                 {
                     if (_roomGrid[i, j] > 0)
                         GenerateRoom(i * (MaxRoomSize + RoomPadding), j * (MaxRoomSize + RoomPadding));
@@ -332,7 +332,7 @@ namespace Textures.Map.Scripts
                     // newTile.GetComponent<Tilemap>().color = counter < firstTileLimit ? Color.blue : Color.red;
                 }
 
-                _tileGrid[(int)currentPos.x, (int)currentPos.y] = 4;
+                _tileGrid[(int)currentPos.x, (int)currentPos.y] = 4; // 4 = essential to corridor
                 counter++;
                 if (counter == firstTileLimit + secondTileLimit + 1) break;
                 if (counter == firstTileLimit)
@@ -430,9 +430,9 @@ namespace Textures.Map.Scripts
         private void GenerateObstacles()
         {
             float seedX = Random.Range(0, 1000.0f), seedY = Random.Range(0, 1000.0f);
-            for (var y = 0; y < MaxRoomCountPerDimension; y++)
+            for (var y = 0; y < MaxRoomsPerDimension; y++)
             {
-                for (var x = 0; x < MaxRoomCountPerDimension; x++)
+                for (var x = 0; x < MaxRoomsPerDimension; x++)
                 {
                     if (_roomGrid[x, y] != 1) continue;
 
@@ -462,14 +462,14 @@ namespace Textures.Map.Scripts
                             }
 
                             if (_tileGrid[tileX, tileY] == 1 || _tileGrid[tileX, tileY] == 2)
-                                _freeTilesInRoom[x + y * MaxRoomCountPerDimension].Add(new Vector2Int(tileX, tileY));
+                                _freeTilesInRoom[x + y * MaxRoomsPerDimension].Add(new Vector2Int(tileX, tileY));
                         }
                     }
                 }
             }
         }
 
-        private void GenerateMapSpawns()
+        private void GenerateEntities()
         {
             var totalEnemyCount = 0;
             var numberOfChests = _mapIndex % 3 == 0 ? _roomCount / 2 : _roomCount / 3;
@@ -483,11 +483,11 @@ namespace Textures.Map.Scripts
 
             var existingRoomIndex = 0;
             // Debug.Log("room count: " + _roomCount);
-            for (var y = 0; y < MaxRoomCountPerDimension; y++)
+            for (var y = 0; y < MaxRoomsPerDimension; y++)
             {
-                for (var x = 0; x < MaxRoomCountPerDimension; x++)
+                for (var x = 0; x < MaxRoomsPerDimension; x++)
                 {
-                    var roomIndex = x + y * MaxRoomCountPerDimension;
+                    var roomIndex = x + y * MaxRoomsPerDimension;
 
                     if (_roomGrid[x, y] == 0) continue;
 
