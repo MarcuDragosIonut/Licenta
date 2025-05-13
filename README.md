@@ -1,4 +1,4 @@
-# Proiect Licenta FMI 2024-2025
+#  Unibuc FMI 2024-2025 Bachelor's Project
 ## Procedurally Generated Adventure Game
 
 The project consists of a 2D Top-Down Roguelike game created using Unity. The player has to
