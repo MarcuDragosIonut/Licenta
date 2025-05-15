@@ -8,20 +8,20 @@ namespace Characters.Player.Scripts
     [Serializable]
     public class SpellCombo : IEquatable<SpellCombo>
     {
-        public readonly List<ElementType> comboElements;
+        public readonly List<ElementType> ComboElements;
 
         public SpellCombo(List<ElementType> comboElements)
         {
-            this.comboElements = comboElements;
+            this.ComboElements = comboElements;
         }
 
         public bool Equals(SpellCombo other)
         {
-            if (other == null || other.comboElements.Count != comboElements.Count) return false;
+            if (other == null || other.ComboElements.Count != ComboElements.Count) return false;
 
-            for (var i = 0; i < comboElements.Count; i++)
+            for (var i = 0; i < ComboElements.Count; i++)
             {
-                if (comboElements[i] != other.comboElements[i]) return false;
+                if (ComboElements[i] != other.ComboElements[i]) return false;
             }
 
             return true;
@@ -32,7 +32,7 @@ namespace Characters.Player.Scripts
             unchecked
             {
                 var hash = 17;
-                foreach (var element in comboElements)
+                foreach (var element in ComboElements)
                     hash = hash * 23 + element.GetHashCode();
                 return hash;
             }

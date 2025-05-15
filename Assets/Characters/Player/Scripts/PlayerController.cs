@@ -7,10 +7,8 @@ using Items.Armor.Scripts;
 using Items.Weapons.Attacks.Scripts;
 using Items.Weapons.Scripts;
 using Map.Scripts;
-using Textures.Map.Scripts;
 using UI.Scripts;
 using Unity.VisualScripting;
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -60,6 +58,7 @@ namespace Characters.Player.Scripts
         private InventoryController _inventoryController;
         private SkillsController _skillsController;
         private PlayerStatsController _statsController;
+        private PauseMenuController _pauseManager;
 
         private Rigidbody2D _rb;
         private Camera _mainCamera;
@@ -88,6 +87,7 @@ namespace Characters.Player.Scripts
             _inventoryController = inventory.GetComponent<InventoryController>();
             _skillsController = skillTab.GetComponent<SkillsController>();
             _spellComboController = GetComponent<SpellComboController>();
+            _pauseManager = GameObject.Find("PauseManager").GetComponent<PauseMenuController>();
             EquipWeapon(_inventoryController.equippedWand);
             EquipArmor(_inventoryController.headEquipment);
             EquipArmor(_inventoryController.bodyEquipment);
@@ -101,13 +101,13 @@ namespace Characters.Player.Scripts
 
         public void OnInventoryButtonPress(InputAction.CallbackContext context)
         {
-            if(!context.performed) return;
+            if(_pauseManager.isPaused || !context.performed) return;
             ChangeInventoryVisibility();
         }
 
         public void OnSkillTabButtonPress(InputAction.CallbackContext context)
         {
-            if(!context.performed) return;
+            if(_pauseManager.isPaused || !context.performed) return;
             
             skillTab.SetActive(!_skillTabOpened);
             _skillTabOpened = !_skillTabOpened;
@@ -115,6 +115,7 @@ namespace Characters.Player.Scripts
         
         private void ChangeInventoryVisibility()
         {
+            if(_pauseManager.isPaused) return;
             if (_isPickingUpLoot)
             {
                 inventory.GetComponent<InventoryController>().CancelLootAction();
@@ -127,6 +128,8 @@ namespace Characters.Player.Scripts
 
         public void OnMove(InputAction.CallbackContext context)
         {
+            if (_pauseManager.isPaused) return;
+            
             var moveInput = context.ReadValue<Vector2>();
             _velocity = moveInput * speed;
             _headAnimator.SetBool(IsMoving, _velocity.magnitude > 0.01f);
@@ -144,7 +147,7 @@ namespace Characters.Player.Scripts
         
         public void OnInteract(InputAction.CallbackContext context)
         {
-            if (!context.performed) return;
+            if (_pauseManager.isPaused || !context.performed) return;
             
             Debug.Log("Pressed E");
             
@@ -177,7 +180,7 @@ namespace Characters.Player.Scripts
 
         public void OnLook(InputAction.CallbackContext context)
         {
-            if (_inventoryOpened || _skillTabOpened) return;
+            if (_inventoryOpened || _skillTabOpened || _pauseManager.isPaused) return;
 
             Vector2 mousePos = context.ReadValue<Vector2>();
             var direction = GetMouseDirection(mousePos);
@@ -269,7 +272,7 @@ namespace Characters.Player.Scripts
         
         public void PrepareAttack(InputAction.CallbackContext context)
         {
-            if (_inventoryOpened || _skillTabOpened) return;
+            if (_pauseManager.isPaused || _inventoryOpened || _skillTabOpened) return;
 
             var keyPressed = context.control.name;
             var selectedSpellSlot = int.Parse(keyPressed);
@@ -401,6 +404,10 @@ namespace Characters.Player.Scripts
             var damage = GetDamageFromAttack(attack);
             health -= damage;
             _statsController.UpdateStats(health, maxHealth, mana, maxMana);
+            if (health <= 0f)
+            {
+                _pauseManager.LoadMainMenu();
+            }
         }
 
         private float GetDamageFromAttack(AttackBehaviour attack)

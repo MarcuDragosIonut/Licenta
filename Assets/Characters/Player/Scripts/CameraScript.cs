@@ -1,14 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraScript : MonoBehaviour
+namespace Characters.Player.Scripts
 {
-    [SerializeField]
-    private Transform followTarget;
-
-    private void Update()
+    public class CameraScript : MonoBehaviour
     {
-        transform.position = new Vector3(followTarget.position.x, followTarget.position.y, transform.position.z);
+        [SerializeField]
+        private Transform followTarget;
+
+        private void Update()
+        {
+            transform.position = new Vector3(followTarget.position.x, followTarget.position.y, transform.position.z);
+        }
     }
 }

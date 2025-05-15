@@ -2,14 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
-namespace Textures.Map.Scripts
+namespace Map.Scripts
 {
     public class GenerateMap : MonoBehaviour
     {

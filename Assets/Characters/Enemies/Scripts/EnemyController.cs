@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Characters.Player.Scripts;
 using Items.Weapons.Attacks.Scripts;
+using Map.Scripts;
 using Pathfinding;
-using Textures.Map.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -137,7 +137,7 @@ namespace Characters.Enemies.Scripts
             _aiPath.canMove = false;
             var attackDirection = (_rb.position - (Vector2)attack.transform.position).normalized;
             _rb.velocity = attackDirection * attack.knockBack;
-            Debug.Log("KnockBack " + _rb.velocity);
+            // Debug.Log("KnockBack " + _rb.velocity);
             yield return new WaitForSeconds(0.15f);
             _rb.velocity = Vector2.zero;
             if(transform.CompareTag("Boss"))_aiPath.canMove = true;

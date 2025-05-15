@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
+using Map.Scripts;
 using Pathfinding;
-using Textures.Map.Scripts;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
