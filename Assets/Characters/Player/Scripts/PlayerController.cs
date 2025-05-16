@@ -155,6 +155,7 @@ namespace Characters.Player.Scripts
             if (_isTouchingPortal && mapScript.CanTeleportToNextMap())
             {
                 StartCoroutine(mapScript.ChangeMap());
+                health += 35;
                 return;
             }
 

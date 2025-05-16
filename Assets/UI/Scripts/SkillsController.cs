@@ -142,18 +142,10 @@ namespace UI.Scripts
                           : attackUpgradeCost / (_attackUpgradeCount + 1)));
             return statType switch
             {
-                StatType.Attack => attackUpgradeCost + (_attackUpgradeCount == 0
-                    ? 0
-                    : attackUpgradeCost / (_attackUpgradeCount + 1)),
-                StatType.Health => healthUpgradeCost + (_healthUpgradeCount == 0
-                    ? 0
-                    : healthUpgradeCost / (_healthUpgradeCount + 2)),
-                StatType.Mana => manaUpgradeCost + (_manaUpgradeCount == 0
-                    ? 0
-                    : manaUpgradeCost / (_manaUpgradeCount + 3)),
-                StatType.ManaRegen => manaRegenUpgradeCost + (_manaRegenUpgradeCount == 0
-                    ? 0
-                    : manaRegenUpgradeCost / (_manaRegenUpgradeCount + 2)),
+                StatType.Attack => attackUpgradeCost + _attackUpgradeCount / 2,
+                StatType.Health => healthUpgradeCost + _healthUpgradeCount / 2,
+                StatType.Mana => manaUpgradeCost + _manaUpgradeCount / 3,
+                StatType.ManaRegen => manaRegenUpgradeCost + _manaRegenUpgradeCount / 3,
                 _ => 3
             };
         }
