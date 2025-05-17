@@ -52,7 +52,10 @@ MonoBehaviour:
   fireMultiplier: 1
   waterMultiplier: 1
   physicalMultiplier: 1
-  damageReductionMultiplier: 1
+  arcaneReductionMultiplier: -0.05
+  fireReductionMultiplier: 0
+  waterReductionMultiplier: 0
+  physicalReductionMultiplier: 0
 --- !u!212 &4279093366424388643
 SpriteRenderer:
   m_ObjectHideFlags: 0

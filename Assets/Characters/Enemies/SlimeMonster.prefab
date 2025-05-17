@@ -195,11 +195,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 941aa2be0a1fea34a8f311ff88433cf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 25
+  health: 45
   arcaneRes: 1
-  fireRes: 1
-  waterRes: 1
-  physicalRes: 1
+  fireRes: 0.85
+  waterRes: 0.5
+  physicalRes: 0.9
   speed: 1.5
   attackRange: 1
   skillPoints: 1
@@ -253,7 +253,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 5
+  m_Radius: 8
 --- !u!50 &8653194028405257103
 Rigidbody2D:
   serializedVersion: 4

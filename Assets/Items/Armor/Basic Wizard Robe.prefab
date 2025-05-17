@@ -48,6 +48,14 @@ MonoBehaviour:
   armorSprite: {fileID: 21300000, guid: 606b4a70ceccfab49a40f69a0395458b, type: 3}
   equippedArmorSprite: {fileID: 21300000, guid: 00ce3bee18c62f24c8df7dedb9bad578, type: 3}
   armorType: 1
+  arcaneMultiplier: 1.2
+  fireMultiplier: 1
+  waterMultiplier: 1
+  physicalMultiplier: 1
+  arcaneReductionMultiplier: -0.15
+  fireReductionMultiplier: 1
+  waterReductionMultiplier: 1
+  physicalReductionMultiplier: -0.1
 --- !u!212 &4279093366424388643
 SpriteRenderer:
   m_ObjectHideFlags: 0

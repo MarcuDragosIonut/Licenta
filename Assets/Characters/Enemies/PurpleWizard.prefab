@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 941aa2be0a1fea34a8f311ff88433cf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 45
+  health: 75
   arcaneRes: 0.3
   fireRes: 1
   waterRes: 1

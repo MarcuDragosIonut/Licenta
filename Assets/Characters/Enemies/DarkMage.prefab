@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 941aa2be0a1fea34a8f311ff88433cf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 16
+  health: 30
   arcaneRes: 0.5
   fireRes: 1
   waterRes: 1
@@ -233,7 +233,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 8
+  m_Radius: 9
 --- !u!50 &2541371500816719648
 Rigidbody2D:
   serializedVersion: 4

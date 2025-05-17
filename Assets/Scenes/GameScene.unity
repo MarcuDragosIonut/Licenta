@@ -5015,7 +5015,7 @@ MonoBehaviour:
   - {fileID: 5094608658621716252, guid: 78e9eb034b2d5f44eae8725e614eeb07, type: 3}
   bossPrefabs:
   - {fileID: 5100905083939593838, guid: b5162dc994415174291a630830967d7e, type: 3}
-  borderLength: 3
+  borderLength: 6
 --- !u!1 &696679989
 GameObject:
   m_ObjectHideFlags: 0
